@@ -1,0 +1,3512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AME Demo</title>
+    <script src={{ url_for('static', filename='js/jquery-3.3.1.min.js') }}></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+
+    <!-- <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
+    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@5.9.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@3.0.0-rc14"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@3.29.1"></script>
+
+
+    <!-- <script src="https://code.jscharting.com/2.9.0/jscharting.js"></script> -->
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script> -->
+
+    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
+
+
+
+
+
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href={{ url_for('static', filename='css/interv.css') }} rel="stylesheet">
+</head>
+
+<body onLoad="$('#loginSuccessfulModal').modal('show');">
+    <nav class="navbar navbar-dark fixed-top bg-dark  p-0 shadow navbar-expand-lg">
+        <div class="navbar-collapse collapse">
+            <a class="navbar-brand col-sm-3 col-md-2 mr-auto" href="#">AME Demo</a>
+            <!-- <ul class="nav navbar-right justify-content-center px-2">
+                <li class="navbar-nav nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href='#' data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">Hello, {{ cur_user }}</a>
+                </li>
+            </ul> -->
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+
+                    <!-- kehan modified for select table from databases -->
+
+                    <!--
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Select Database</span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                        <li class="nav-item d-flex align-items-center text-muted dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                View
+                            </a>
+                            <div class="dropdown-menu" href="#" aria-labelledby="navbarDropdown">
+                                {% for i in available_dbs %}
+                                <a class="dropdown-item" href="{{ url_for('switch_db', db_name=i) }}">{{i}}</a>
+                                {% endfor %}
+                            </div>
+                        </li>
+                        -->
+
+                        <!-- <span type="button" class="btn btn-db btn-sm btn-warning" href="{{ url_for('switch_db', db_name='test1') }}" >View</span> -->
+                    </h6>
+
+
+                    <!--
+                    <h6
+                    class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Select Algorithm</span>
+                    </h6>
+                    
+                    <div class="mt-2 ml-4">
+                        <input type="radio" id="flame" name="algorithm" value="flame" checked>
+                        <label for="flame">FLAME</label>
+                    </div>
+                      
+                    <div class="ml-4">
+                        <input type="radio" id="dame" name="algorithm" value="dame">
+                        <label for="dame">DAME</label>
+                    </div>
+                    -->
+
+
+
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Datasets</span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+                    <!-- {% set active_table = active_table|default("adult") %} -->
+                    <ul class="nav flex-column mb-2 ml-2">
+                        {% for i in available_tables %}
+                        <li class="nav-item">
+                            <a {% if i|string == active_table|string %}class="active nav-link"
+                                {% else %}class="nav-link" {% endif %} href="{{ url_for('interv', active_table=i)|e }}">
+                                {#                            <a class="active nav-link" href="#">#}
+                                <span data-feather="file-text"></span>{{ i }}{{ caption|e }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="mr-4 ml-4">
+                        <span 
+                        type="button" 
+                        class="btn btn-sm btn-warning btn-view-table mt-1" 
+                        data-toggle="modal"
+                        data-target="#view-table-modal">View</span>
+                          
+
+                        
+                        
+
+                        <!--
+                        <button 
+                        type="button" 
+                        class="btn btn-warning btn-table-upload mt-1" 
+                        data-dismiss="modal" disabled>Upload</button>
+                        -->
+                        
+                        
+                        
+                    
+                        <span type="button" class="btn btn-sm btn-info btn-add-table " data-toggle="modal" id="upload_button"
+                            data-target="#add-table-modal">Upload</span>
+                        
+                            
+                            
+                    </div>
+
+
+
+
+
+
+
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Exclude Variables: </span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+                    <!-- {#                <table class="table">#}
+                    {#                    <thead>#}
+                    {#                        <tr>#}
+                    {#                            <th scope="col">Attribute</th>#}
+                    {#                            <th scope="col">Used in explanation?</th>#}
+                    {#                        </tr>#}
+                    {#                    </thead>#}
+                    {#                    <tbody id="table-attr-list">#}
+                    {#                    {% for attr in table_schemas[available_tables[0]] %}#}
+                    {#                        <tr>#}
+                    {#                            <td>#}
+                    {#                                <span data-feather="file-text">{{ attr }}{{ caption|e }}</span>#}
+                    {#                            </td>#}
+                    {#                            <td>#}
+                    {#                                <input class="form-check-input ml-2" type="checkbox" value="" id="checkbox-{{ attr }}">#}
+                    {#                            </td>#}
+                    {#                        </tr>#}
+                    {#                    {% endfor %}#}
+                    {#                    </tbody>#}
+                    {#                </table>#} -->
+                    
+                    <div class="feature ml-1">
+                        <li class="form-check nav-item mb-1">Select variables you wish to<br /> exclude from matching (such as <br />post-treatment variables). 
+                        </li>
+                        {% for attr in table_datatype[active_table] %}
+                        {#                        <li class="nav-item px-3">#}
+                        {#                            <span data-feather="file-text">{{ attr[0] }}{{ caption|e }} </span>#}
+                        {#                        </li>#}
+                        <li class="form-check nav-item">
+                            <label class="form-check-label align-baseline"
+                                for="{{ attr[0] }}">{{ attr[0] }}{{ caption|e }}</label>
+                            <input class="form-check-input ml-2 align-baseline" type="checkbox" name="feature[]"
+                                value="{{ attr[0] }}" id="checkbox-{{ attr[0] }}" 
+                                {% if attr[1] == 'character' or attr[1] == 'text' %}{% endif %}>
+
+                            <svg width="10" height="13" class="float-sm-right mr-2 align-bottom">
+                                <rect x="0" y="0" width="0" height="13" fill="none" id="rec-score-rect-{{ attr[0] }}" />
+                            </svg>
+
+                            <label id='recom-score-{{ attr[0]}}' class="float-right mr-2 align-baseline"></label>
+                        </li>
+                        {% endfor %}
+                    </div>
+                    <!--DROP START-->
+
+
+
+                    
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Delete Variables: </span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+                
+                    <div class="feature_perm">
+                        <li class="form-check nav-item">Select variables you wish to<br /> permanently drop from <br />matching. (Such as <br> post-treatment variables) <br/> Do not drop treatment or <br /> outcome variables. 
+                        </li>
+                        {% for attr in table_datatype[active_table] %}
+                        {#                        <li class="nav-item px-3">#}
+                        {#                            <span data-feather="file-text">{{ attr[0] }}{{ caption|e }} </span>#}
+                        {#                        </li>#}
+                        <li class="form-check nav-item">
+                            <label class="form-check-label align-baseline"
+                                for="{{ attr[0] }}">{{ attr[0] }}{{ caption|e }}</label>
+                            <input class="form-check-input ml-2 align-baseline" type="checkbox" name="feature_perm[]"
+                                value="{{ attr[0] }}" id="checkbox-{{ attr[0] }}" 
+                                {% if attr[1] == 'character' or attr[1] == 'text' %}{% endif %}>
+                            <svg width="10" height="13" class="float-sm-right mr-2 align-bottom">
+                                <rect x="0" y="0" width="0" height="13" fill="none" id="rec-score-rect-{{ attr[0] }}" />
+                            </svg>
+                            <label id='recom-score-{{ attr[0]}}' class="float-right mr-2 align-baseline"></label>
+                        </li>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-del-var" style="background-color:#97cfc3" onClick="window.location.reload();">Drop</button>
+
+
+
+                    <br>
+                    <br>
+                    <a href="https://archive.ics.uci.edu/ml/datasets/adult" target = "_blank"> &nbsp; About the adult dataset</a>
+
+
+
+
+
+
+
+
+                    <!--
+                    <h6
+                    class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Recommend Variables to Drop: </span>
+                    <a class="d-flex align-items-center text-muted" href="#">
+                        <span data-feather="plus-circle"></span>
+                    </a>
+                    </h6>
+                    <div class="input-group input-group-sm py-2 px-1 float-right">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">treat: </span>
+                            </div>
+                            <select class="form-control" name="x-recc" id="x-recc" style="width:auto;">
+                                {% for attr in table_datatype[active_table] %}
+                                <option value="{{ attr[0] }}{{ caption|e }}" {% if attr|string == active_table|string %}
+                                    selected="selected" {% endif %}>
+                                    {{ attr[0] }}{{ caption|e }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group">
+                                <span class="input-group-text">out: </span>
+                            </div>
+                            <select class="form-control" name="y-recc" id="y-recc" style="width:auto;">
+                                {% for attr in table_datatype[active_table] %}
+                                <option value="{{ attr[0] }}{{ caption|e }}" {% if attr|string == active_table|string %}
+                                    selected="selected" {% endif %}>
+                                    {{ attr[0] }}{{ caption|e }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+    
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Recommend </span>
+                        </div>
+                        <input class="form-control form-control-sm" type="number" value="2" name="rec-k-attr"
+                            id="rec-k-attr" min="1">
+                        <div class="input-group-append">
+                            <span class="input-group-text">variables</span>
+                        </div>
+                        <button type="button" class="ml-5 btn btn-sm btn-info btn-recc float-right" data-toggle="modal"
+                            data-target="#view-table-modal-rec">
+                            Recommend
+                        </button>
+                        
+                        <button type="button" class="ml-5 btn btn-sm btn-info btn-reset float-right"
+                            title="Reset the weights for the ensemble model in Attribute Recommender.">
+                            Reset
+                        </button>
+                    </div>
+                -->
+
+
+                    <!--delete table function-->
+
+                    <!--
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Delete Datasets: </span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+            
+                    <div class="tbl_drop">
+                        <li class="form-check nav-item"> Select datasets to delete. 
+                        </li>
+                        {% for i in available_tables %}
+                        {#                        <li class="nav-item px-3">#}
+                        {#                            <span data-feather="file-text">{{ i }}{{ caption|e }} </span>#}
+                        {#                        </li>#}
+                        <li class="form-check nav-item">
+                            <label class="form-check-label align-baseline"
+                                for="{{ i }}">{{ i }}{{ caption|e }}</label>
+                            <input class="form-check-input ml-2 align-baseline" type="checkbox" name="tbl_drop[]"
+                                value="{{ i }}" id="checkbox-{{ i }}" >
+                            <svg width="10" height="13" class="float-sm-right mr-2 align-bottom">
+                                <rect x="0" y="0" width="0" height="13" fill="none" id="rec-score-rect-{{ i }}" />
+                            </svg>
+                            <label id='recom-score-{{ i }}' class="float-right mr-2 align-baseline"></label>
+                        </li>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-del-tbl" style="background-color:#97cfc3" onClick="window.location.reload();">Delete</button>
+-->
+
+
+                        
+
+
+
+
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2 class="h3">Input Parameters for Matching Here</h2>
+                    <a href="https://almost-matching-exactly.github.io/DAME-FLAME-Python-Package/" target = "_blank"> About DAME-FLAME</a>
+                    <div class="btn-toolbar mb-2 mb-md-0 d-none">
+                        <div class="btn-group mr-2">
+                            <button class="btn btn-sm btn-outline-secondary">Share</button>
+                            <button class="btn btn-sm btn-outline-secondary">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <style>
+                    .input-group {
+                        margin-top: 0.25rem;
+                    }
+
+                    .advanced-input {
+                        width: 500px !important;
+                    }
+
+                    .custom-tooltip-bar {
+                        text-decoration: none;
+                        cursor: pointer;
+                        margin-left: 0.25rem;
+                        margin-right: 0.5rem;
+                        margin-top: -1rem;
+                        padding-left: 0px;
+                        padding-right: 0px;
+                    }
+
+                    .custom-tooltip {
+                        text-decoration: none;
+                        cursor: pointer;
+                        margin-left: 0.25rem;
+                        margin-right: 1.5rem;
+                        margin-top: 0.25rem;
+                        padding-left: 0px;
+                        padding-right: 0px;
+                    }
+                </style>
+
+                <script>
+                    $(function () {
+                        $('[data-toggle="tooltip"]').tooltip()
+                    })
+                </script>
+
+
+                <svg style="display:none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                    <symbol id="tooltip-icon" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"/>
+                    </symbol>
+                </svg>
+
+
+                <div class="col justify-content-md-center">
+                    <form id="query-form" class="form-inline">
+
+                        <br><br>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">TREATMENT:
+                                        
+                                    </span>
+                                </div>
+                                <select class="form-control" name="xvar" id="xvar" style="width:auto;">
+                                    {% for attr in table_datatype[active_table] %}
+                                    <option value="{{ attr[0] }}{{ caption|e }}" {% if attr|string == active_table|string %}
+                                        selected="selected" {% endif %}>
+                                        {{ attr[0] }}{{ caption|e }}</option>
+                                    {% endfor %}
+                                </select>                       
+                            </div>
+                            <a class="custom-tooltip-bar"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            data-trigger="hover"
+                            title="Select treatment variable. Must be binary after treatment condition is applied. 
+                            Make sure that selected treatment variable was not excluded from matching.">
+                                <svg height="16" width="16" fill="#6C757D">
+                                    <use href="#tooltip-icon"></use>
+                                </svg>
+                            </a>
+                                                        
+
+
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Treated if: </span>
+                                </div>
+                                <input 
+                                type="text" 
+                                name="treat_condition" 
+                                class="form-control" 
+                                id="treat_condition"
+                                placeholder="x == 1">
+                            </div>
+
+                            <a class="custom-tooltip-bar"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            data-trigger="hover"
+                            title="Treatment condition must be a Python-compliant boolean expression, 
+                            and must use 'x' to indicate the treatment variable. For example, if you 
+                            selected 't' as the treatment variable and you want all units for which
+                            't' is greater than 3 to be considered treated, then write 'x > 3'.">
+                                <svg height="16" width="16" fill="#6C757D">
+                                    <use href="#tooltip-icon"></use>
+                                </svg>
+                            </a>
+
+
+
+                            <br>
+
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">OUTCOME: </span>
+                                </div>
+                                <select class="form-control" name="y-var" id="y-var" style="width:auto;">
+                                    {% for attr in table_datatype[active_table] %}
+                                    <option value="{{ attr[0] }}{{ caption|e }}" {% if attr|string == active_table|string %}
+                                        selected="selected" {% endif %}>
+                                        {{ attr[0] }}{{ caption|e }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <a class="custom-tooltip-bar"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            data-trigger="hover"
+                            title="Select outcome variable. May be continuous or discrete. 
+                            Make sure that selected outcome variable was not excluded from matching.">
+                                <svg height="16" width="16" fill="#6C757D">
+                                    <use href="#tooltip-icon"></use>
+                                </svg>
+                            </a>
+
+
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">SOURCE: </span>
+                                </div>
+                                <select class="form-control" name="sql-from" id="sql-from" style="width:auto;">
+                                    {% for tbl in available_tables %}
+                                    <option value="{{ tbl }}{{ caption|e }}" {% if tbl|string == active_table|string %}
+                                        selected="selected" {% endif %}>
+                                        {{ tbl }}{{ caption|e }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <a class="custom-tooltip-bar"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            data-trigger="hover"
+                            title="Select the data set that you wish to use for matching.">
+                                <svg height="16" width="16" fill="#6C757D">
+                                    <use href="#tooltip-icon"></use>
+                                </svg>
+                            </a>
+
+
+
+                        <!--
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Download Result Destination: </span>
+                            </div>
+                            <input type="text" name="download-dest" class="form-control" id="download-dest">
+                        </div>
+                        -->
+
+
+
+
+                        <br><br>
+
+
+                            <button 
+                            type="button" 
+                            class="btn btn-info mt-1 mr-2" 
+                            data-toggle="collapse" 
+                            data-target="#advanced-settings">Advanced Settings</button>
+                            
+                            <div id = "advanced-settings" class="collapse">
+
+                                <!--
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Adaptive Weights: </span>
+                                    </div>
+                                    <select class="form-control" name="aweights" id="aweights" style="width:auto;">
+                                        <option value="ridge">ridge</option>
+                                        <option value="decisiontree">decisiontree</option>
+                                        <option value="ridgeCV">ridgeCV</option>
+                                        <option value="decisiontreeCV">decisiontreeCV</option>
+                                    </select>    
+                                </div>
+                                -->
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Alpha: </span>
+                                        </div>
+                                        <input type="text" name="alpha" class="form-control" id="alpha" value="0.1">
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="Alpha value for ridge regression.">
+                                        <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+        
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Repeats: </span>
+                                        </div>
+                                        <select class="form-control" name="repeats" id="repeats" style="width:auto;">
+                                            <option value="True">True</option>
+                                            <option value="False">False</option>
+                                        </select>
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="Whether or not units for whom a main matched has been found can be used again, and placed in an auxiliary matched group.">
+                                        <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Early Stop Iterations: </span>
+                                        </div>
+                                        <input type="text" name="esi" class="form-control" id="esi" value="0">
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="If provided, a number of iterations after which to hard stop the algorithm.">
+                                        <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+        
+
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Stop Unmatched Control: </span>
+                                        </div>
+                                        <select class="form-control" name="sumc" id="sumc" style="width:auto;">
+                                            <option value="False">False</option>
+                                            <option value="True">True</option>
+                                        </select>
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="If True, then the algorithm terminates when there are no more control units to match.">
+                                        <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Stop Unmatched Treatment: </span>
+                                        </div>
+                                        <select class="form-control" name="sumt" id="sumt" style="width:auto;">
+                                            <option value="False">False</option>
+                                            <option value="True">True</option>
+                                        </select>
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="If True, then the algorithm terminates when there are no more treatment units to match.">
+                                        <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Early Stop Fraction for Control Units: </span>
+                                        </div>
+                                        <input type="text" name="esucf" class="form-control" id="esucf" value="0">
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="Must be between 0.0 and 1.0. This provides a fraction of unmatched control units. When the threshold is met, 
+                                    the algorithm will stop iterating. For example, using an input dataset with 100 control units, the algorithm will stop 
+                                    when 10 control units are unmatched and 90 are matched (or earlier, depending on other stopping conditions).">                                        <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Early Stop Fraction for Treatment Units: </span>
+                                        </div>
+                                        <input type="text" name="esutf" class="form-control" id="esutf" value="0">
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="Must be between 0.0 and 1.0. This provides a fraction of unmatched treatment units. When the threshold is met, 
+                                    the algorithm will stop iterating. For example, using an input dataset with 100 treatment units, the algorithm will stop 
+                                    when 10 control units are unmatched and 90 are matched (or earlier, depending on other stopping conditions).">                                       <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+        
+
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Early Stop for PE: </span>
+                                        </div>
+                                        <select class="form-control" name="espe" id="espe" style="width:auto;">
+                                            <option value="False">False</option>
+                                            <option value="True">True</option>
+                                        </select>
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="If this is true, then if the covariate set chosen for matching has a predictive error higher 
+                                    than the parameter early_stop_pe_frac, the algorithm will stop.">                                  
+                                    <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+
+
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Early Stop Fraction for PE: </span>
+                                        </div>
+                                        <input type="text" name="espf" class="form-control" id="espf" value="0.01">
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="If early_stop_pe is true, then if the covariate set chosen for matching has a predictive error higher 
+                                    than this value, the algorithm will stop.">                                  
+                                    <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Missing Holdout Replace: </span>
+                                        </div>
+                                        <select class="form-control" name="missing-holdout-replace" id="missing-holdout-replace" style="width:auto;">
+                                            <option value="0">assume no missing holdout data</option>
+                                            <option value="2">exclude units with missing values</option>
+                                            <option value="3">MICE</option>
+                                        </select>
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="Either assume no missing holdout data and proceed; or have the algorithm exclude units with missing values from 
+                                    the holdout dataset; or do MICE on holdout dataset. If the MICE option is selected, it will be done for a number of 
+                                    iterations equal to missing_holdout_imputations.">                                  
+                                    <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Missing Data Replace: </span>
+                                        </div>
+                                        <select class="form-control" name="missing-data-replace" id="missing-data-replace" style="width:auto;">
+                                            <option value="0">assume no missing data</option>
+                                            <option value="1">do not match on units with missing values</option>
+                                            <option value="2">prevent all missing values from matching</option>
+                                            <option value="3">MICE</option>
+                                        </select>
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="Either assume no missing data in matching data and proceed; or have the algorithm not match on units that 
+                                    have missing values; or prevent all missing_indicator values from being matched on. If the third option is chosen, do MICE on matching dataset. 
+                                    This is not recommended. If this option is selected, it will be done for a number of iterations equal to missing_data_imputations.">                                  
+                                    <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Missing Holdout Imputations: </span>
+                                        </div>
+                                        <input type="text" name="missing-holdout-imputations" class="form-control" id="missing-holdout-imputations" value="10">
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="If MICE option chosen for Missing Holdout Replace, the number of imputations.">                                  
+                                    <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+        
+                                <div class="row ml-0">
+                                    <div class="input-group advanced-input">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Missing Data Imputations: </span>
+                                        </div>
+                                        <input type="text" name="missing-data-imputations" class="form-control" id="missing-data-imputations" value="1">
+                                    </div>
+
+                                    <a class="custom-tooltip"
+                                    data-toggle="tooltip"
+                                    data-placement="right"
+                                    data-trigger="hover"
+                                    title="If MICE option chosen for Missing Data Replace, the number of imputations.">
+                                    <svg height="16" width="16" fill="#6C757D">
+                                            <use href="#tooltip-icon"></use>
+                                        </svg>
+                                    </a>
+
+                                </div>
+                            </div>
+                        
+
+
+
+
+
+
+
+
+                            <button 
+                            type="button" 
+                            class="btn btn-primary btn-run mt-1" 
+                            id="match-button"
+                            onclick="openCity(event, 'matched-result')"
+                            title="Get matches by choosing the treatment and outcome variables and setting parameters."
+                            style="clear:left">Match</button>
+
+
+
+
+                    </form>
+                </div>
+
+
+                <!--CCCCCCCCCCCCCCCCCC-->
+
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <style>
+                body {font-family: Arial;}
+                
+                /* Style the tab */
+                .tab {
+                  overflow: hidden;
+                  border: 1px solid #ccc;
+                  background-color: #f1f1f1;
+                  margin-left: 15px;
+                  margin-right: 15px;
+                }
+                
+                /* Style the buttons inside the tab */
+                .tab button {
+                  background-color: inherit;
+                  float: left;
+                  border: none;
+                  outline: none;
+                  cursor: pointer;
+                  padding: 14px 16px;
+                  transition: 0.3s;
+                  font-size: 17px;
+                }
+                
+                /* Change background color of buttons on hover */
+                .tab button:hover {
+                  background-color: #ddd;
+                }
+                
+                /* Create an active/current tablink class */
+                .tab button.active {
+                  background-color: #ccc;
+                }
+                
+                /* Style the tab content */
+                .tabcontent {
+                  display: none;
+                  padding: 6px 12px;
+                  border: 1px solid #ccc;
+                  border-top: none;
+                }
+                </style>
+
+
+<!--logging bullshit???-->
+            <style>
+                .logging_window{
+                    display: block;
+                    padding: 9.5px;
+                    font-size: 13px;
+                    line-height: 1.42857143;
+                    color: #333;
+                    word-break: break-all;
+                    word-wrap: break-word;
+                    background-color: #f5f5f5;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    width: 50%;
+                    margin: auto;
+                }
+            </style>
+
+
+                
+
+
+
+                <div class="tab mt-2">
+                    <button class="tablinks" onclick="openCity(event, 'matched-result')">General Matched Result</button>
+                    <button class="tablinks" onclick="openCity(event, 'mg-tab')">Matched Groups</button>
+                    <button class="tablinks" onclick="openCity(event, 'query-result')">Graphs</button>
+                    
+                    
+                    <button class="tablinks" onclick="openCity(event, 'log-tab')">Matching Logs</button>
+                    
+
+                </div>
+                  
+                <!--CCCCCCCCCCCCCCCCCCCCC-->
+                
+                <div class="test-result-base py-3 d-none">
+                    <!--<div id="query-result" class="py-3 d-none">-->
+
+                    <div id="matched-result" class="tabcontent" style="display:block">
+
+                        <div class="row">
+
+                            <!--logging bullshit???-->
+
+                            
+                      
+                        
+
+                            <div class="col-md-12">
+                                <div class="card test-result border-top">
+
+                                    <pre id="loading"></pre>
+
+                                    <div class="modal-body table-responsive">
+                                        <table id="view-treat-out" class="table table-sm table-info">
+                                        </table>
+                                    </div>
+
+
+            
+                                    <div class="modal-body table-responsive">
+                                        <table id="view-treatment-effect" class="table table-sm table-info">
+                                        </table>
+                                    </div>
+
+                                    <!--
+                                    <div class="modal-body table-responsive">
+                                        <table id="view-too-large" class="table table-sm table-info">
+                                        </table>
+                                    </div>
+                                    -->
+
+                                    <pre id = "too-large"></pre>
+
+                                    <!--
+                                    <div class="modal-body table-responsive">
+                                        <table id="view-no-match" class="table table-sm table-info">
+                                        </table>
+                                    </div>
+                                -->
+                                    <pre id = "no-match"></pre>
+
+
+                                    <div class="modal-body table-responsive table-hover">
+                                        <table id="view-res-table" class="table table-sm table-info">
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    
+
+                
+                
+                    </div>
+
+
+                    <div id = "mg-tab" class="tabcontent">
+
+
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Index: </span>
+                            </div>
+                            <input type="text" name="entry-id" class="form-control" id="entry-id">
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-mg mt-1 mb-1" id="btn-mg"
+                        style="clear:left">See Matched Group</button>
+
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card test-result border-top">
+
+                                    <div class="modal-body table-responsive">
+                                        <table id="view-cate-value" class="table table-sm table-info">
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="modal-body table-responsive table-hover">
+                                        <table id="view-mg-table" class="table table-sm table-info">
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--MMMMMMMMMMMMMMMMMMMMMMMMMMM-->
+
+                    </div>
+
+
+                    <div id="query-result" class="tabcontent">
+
+                        <div>
+                            <!-- <canvas id="myChart"></canvas> -->
+                            <div id="covarchartcontainer" style = "width: 100%; height: 500px"></div>
+                            <div id="mychartcontainer" style="width: 100%; height: 500px"></div>
+
+
+                        </div> 
+                        <br><br>
+
+                    </div>
+
+
+                    
+                    <div id="log-tab" class="tabcontent">
+                        <div class="logging_window">
+                          <pre id="logoutput"></pre>
+                        </div>
+                    </div>
+                    
+
+
+                    <!--CCCCCCCCCCCCCCCCCC-->
+
+                </div>
+
+
+                <script>
+                    function openCity(evt, cityName) {
+                      var i, tabcontent, tablinks;
+                      tabcontent = document.getElementsByClassName("tabcontent");
+                      for (i = 0; i < tabcontent.length; i++) {
+                        tabcontent[i].style.display = "none";
+                      }
+                      tablinks = document.getElementsByClassName("tablinks");
+                      for (i = 0; i < tablinks.length; i++) {
+                        tablinks[i].className = tablinks[i].className.replace(" active", "");
+                      }
+                      document.getElementById(cityName).style.display = "block";
+                      evt.currentTarget.className += " active";
+                    }
+                </script>
+                    
+
+                <!-- <div class="test-result-base2 py-3 d-none">
+                    {#                <div class="py-3 border-top">#}
+                    {#                    <div id="ra-status" class="px-3">#}
+                    {#                        <h4><span>RA Test Status: </span><span id="ra-result-state2" class="d-none"></span><span#}
+                    {#                                id="ra-test-wait2" class="px-2 d-none"><img#}
+                    {#                                src={{ url_for('static', filename='imgs/loading.gif') }} class="img-rounded" width="15"></span>#}
+                    {#                        </h4>#}
+                    {#                    </div>#}
+                    {#                </div>#}
+                    <div id="query-result2" class="py-3 d-none">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card test-result border-top">
+                                    <div class="card-header">
+                                        <h5 class="float-left">Query Result</h5>
+                                        <p class="float-left px-1 py-1" id="query-res-group-1"></p>
+                                        <button type="button" class="btn btn-sm btn-secondary float-right"
+                                            data-toggle="modal" data-target="#vis-setting-modal">Visualization Settings
+                                        </button>
+                                    </div>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="vis_res"></div>
+                    </div>
+                </div> -->
+            </main>
+        </div>
+    </div>
+
+
+    <!--
+    <div class="modal fade" id="view-table-modal-rec" tabindex="-1" role="dialog" aria-labelledby="viewTableModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Drop Recommendations:</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body table-responsive">
+                    <table id="view-recc-drops" class="table table-sm table-info">
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    -->
+
+
+    <div class="modal fade" id="view-table-modal" tabindex="-1" role="dialog" aria-labelledby="viewTableModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Viewing Dataset</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body table-responsive">
+                    <table id="view-table-dimensions" class="table table-sm table-info">
+                    </table>
+                </div>
+
+                <div class="modal-body table-responsive">
+                    <table id="view-table-content" class="table table-sm table-info">
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="add-table-modal" tabindex="-1" role="dialog" aria-labelledby="addTableModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload New Dataset</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="upload">
+                        <form id="upload-new-table">
+                            <input type="file" name="file" accept=".csv" id="upload-csv-file">
+                        </form>
+                        <br>
+                        <p id="successAlert" style="display:none;">Success!</p>
+                        <p id="errorAlert" style="display:none;">Fail!</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning btn-table-upload" data-dismiss="modal">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addWhereModal" tabindex="-1" role="dialog" aria-labelledby="addWhereModal"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addWhereModalLabel">Input your where clause</h5>
+                    <button type="button" class="close btn-cancel-add-where" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">WHERE</span>
+                        </div>
+                        <input class="form-control" name="sql-add-where" id="sql-add-where" style="width:auto">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-cancel-add-where"
+                        data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="vis-setting-modal" tabindex="-1" role="dialog" aria-labelledby="visSettingModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Visualization Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="vis-setting-form" class="form">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Column Attr.</span>
+                            </div>
+                            <select class="form-control vis-setting" name="attr-col" id="attr-col" style="width:auto;">
+                                {% for attr in table_schemas[active_table] %}
+                                <option value="{{ attr }}{{ caption|e }}">{{ attr }}{{ caption|e }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">X-Axis Attr.</span>
+                            </div>
+                            <select class="form-control vis-setting" name="attr-x" id="attr-x" style="width:auto;">
+                                {% for attr in table_schemas[active_table] %}
+                                <option value="{{ attr }}{{ caption|e }}">{{ attr }}{{ caption|e }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Color Attr.</span>
+                            </div>
+                            <select class="form-control vis-setting" name="attr-color" id="attr-color"
+                                style="width:auto;">
+                                {% for attr in table_schemas[active_table] %}
+                                <option value="{{ attr }}{{ caption|e }}">{{ attr }}{{ caption|e }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Values of Rest Attr.</span>
+                            </div>
+                            <select class="form-control" name="value-rest" id="value-rest" style="width:auto;">
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning btn-vis-setting" data-dismiss="modal">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script>
+    let click_cnt = 0;
+    let clicked_position = [[], [], [], []];
+    let clicked_item = [{}, {}];
+    let groupby_attrs = [];
+    let aggregation = "";
+    let cur_view;
+    let cur_res = null;
+    let cur_interv = false;
+    let crossout_predicate = [];
+    let updown_history = []
+    // kehan modify
+    let range_exp = false;
+    let selected_range = {}
+    let checked_attrs = []
+
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+
+
+
+    // kehan modify for visualize range explanation 
+    function plot_spec_range_exp(res, aggr, div, dive_in, range) {
+        console.log(dive_in)
+        var domain_var = {}
+        var init = ""
+        if (range != 'DNE') {
+            if (dive_in != 'True') {
+                init = { "x": [range[0], range[1]] }
+
+                selected_range[res[0]] = [range[0], range[1]];
+
+            }
+            else {
+                console.log("in")
+                domain_var = { "domain": [range[0], range[1]] }
+                init = { "x": [range[0] / 10, range[1] / 10] }
+
+                selected_range[res[0]] = [(range[0] / 10).toFixed(3), (range[1] / 10).toFixed(3)];
+            }
+        }
+        else {
+            delete selected_range[res[0]];
+        }
+
+
+
+        var yourVlSpec = {
+            $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+            description: 'Visualization for range explanation',
+            title: res[0],
+            data: {
+                values: res[1]
+            },
+            "selection": {
+                "brush": { "type": "interval", "encodings": ["x"] }
+            },
+            vconcat: [
+
+                {
+                    "width": 480,
+                    mark: { "type": "area", "line": true, "point": true },
+                    encoding: {
+                        x: { field: res[0], type: 'quantitative', scale: { domain: { selection: "brush" } }, axis: { title: "" } },
+                        y: { field: aggr, type: 'quantitative' },
+                        color: { field: "group", type: "nominal", scale: { "scheme": "category10" } }
+                    }
+                },
+                {
+                    "width": 480,
+                    "height": 60,
+                    mark: { "type": "area", "line": true, "point": true, "clip": true },
+                    selection: { brush: { "type": "interval", "encodings": ["x"], init } },
+                    encoding: {
+                        x: {
+                            field: res[0],
+                            type: 'quantitative',
+                            scale: domain_var
+                        },
+                        y: { field: aggr, type: 'quantitative' },
+                        color: { field: "group", type: "nominal", scale: { "scheme": "category10" } }
+                    }
+                }
+            ]
+
+        };
+        vegaEmbed(div, yourVlSpec).then(function (result) {
+            // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
+
+            // console.log(result);
+            result.view.addSignalListener('brush', function (name, value) {
+                // console.log(value);
+
+                var i = 0;
+                for (var key in value) {
+                    selected_range[key] = value[key];
+                    selected_range[key][0] = selected_range[key][0].toFixed(2);
+                    selected_range[key][1] = selected_range[key][1].toFixed(2);
+                    i = i + 1;
+                }
+
+                if (i == 0) {
+                    delete selected_range[res[0]];
+                }
+                // selected_range.push(value);
+            });
+        }).catch(console.error);;
+
+    }
+    function plot_query_result(res, interv = false, attr_col = null, attr_x = null, attr_color = null, value_rest = null) {
+
+        cur_res = res;
+        cur_interv = interv;
+
+        console.log(res)
+
+        function build_spec() {
+
+            if (attr_col == null) attr_col = res['groupby_attributes'][0];
+            if (attr_x == null) attr_x = res['groupby_attributes'][1];
+            if (attr_color == null) 
+            {
+                if (res['groupby_attributes'].length == 1){
+                    attr_col = res['groupby_attributes'][0]
+                    // attr_x = res['groupby_attributes'][0];
+                    attr_color = res['groupby_attributes'][0];
+                }
+                else{
+                    attr_color = res['groupby_attributes'][1];
+                }
+                
+            }
+            console.log(attr_x)
+            console.log(attr_color)
+            
+            let distinct_x_vals = {};
+            for (let i = 0; i < res['query_result'].length; i++) {
+                if (!(res['query_result'][i][attr_x] in distinct_x_vals)) {
+                    distinct_x_vals[res['query_result'][i][attr_x]] = true;
+                }
+            }
+            let mydata = [];
+            if (!value_rest || value_rest == '*' || value_rest == 'N/A') {
+                mydata = res['query_result']
+            } else {
+                let group_rest = JSON.parse(value_rest);
+                mydata = res['query_result'].filter(function (d) {
+                    for (let k in group_rest) {
+                        if (d[k] != group_rest[k]) return false;
+                    }
+                    return true;
+                });
+            }
+
+            if (interv == false) {
+                mydata = mydata.filter(item => !item.interv);
+            }
+            console.log(mydata)
+            let yourVlSpec = {
+                "$schema": "https://vega.github.io/schema/vega-lite/v3.0.0-rc14.json",
+                "data": { "name": "mydata", "values": mydata },
+                "selection": {
+                    "highlight": { "type": "single", "empty": "none", "on": "mouseover" },
+                    "select": { "type": "multi", "toggle": false, "resolve": "global" }
+                },
+                "width": Object.keys(distinct_x_vals).length > 10 ? 10 * Object.keys(distinct_x_vals).length :
+                    Object.keys(distinct_x_vals).length > 5 ? 20 * Object.keys(distinct_x_vals).length :
+                        40 * Object.keys(distinct_x_vals).length,
+                "padding": "auto",
+                "autosize": {
+                    "type": "fit", "resize": true
+                },
+                //             { #"contains": "padding"# }
+                // },
+                // { #"transform": [#}
+                // { #    { "filter": "datum.year == 2000" }, # }
+                // { #    { "calculate": "datum.sex == 2 ? 'Female' : 'Male'", "as": "gender" } # }
+                // { #], # }
+                "spacing": 10,
+                "mark": {
+                    "type": "bar",
+                    "stroke": "black",
+                    "cursor": "pointer"
+                },
+                "encoding": {
+                    "column": {
+                        "field": attr_col, "type": "nominal"
+                    },
+                    "row": { "field": "Interv", "type": "nominal" },
+                    "x": {
+                        "field": attr_x, "type": "nominal",
+                        // { #"scale": { "rangeStep": 12 }, # }
+                        "scale": { "rangeStep": null },
+                        "axis": { "title": "" }
+                    },
+                    "y": {
+                        "aggregate": "sum", "field": res['aggregation'], "type": "quantitative",
+                        "axis": { "title": res['aggregation'], "grid": false }
+                    },
+                    "color": {
+                        "field": attr_color,
+                        "type": "nominal",
+                        "scale": { "scheme": "category10" }
+                        // { #"scale": { "range": ["#EA98D2", "#659CCA"] } # }
+                    },
+                    "fillOpacity": {
+                        "condition": { "selection": "select", "value": 1 },
+                        "value": 0.5
+                    },
+                    "strokeWidth": {
+                        "condition": [
+                            {
+                                "test": {
+                                    "and": [
+                                        { "selection": "select" },
+                                        "length(data(\"select_store\"))"
+                                    ]
+                                },
+                                "value": 2
+                            },
+                            { "selection": "highlight", "value": 1 }
+                        ],
+                        "value": 0
+                    }
+                },
+                "config": {
+                    "view": { "stroke": "transparent" },
+                    "axis": { "domainWidth": 1 },
+                    "viewport": [300, 200]
+                }
+            };
+            return yourVlSpec;
+        }
+
+        function vegaSelect(event, item) {
+
+            if (!item) return;
+            if (click_cnt === 2) {
+                click_cnt = 0;
+                $('#vis').empty();
+
+                let vgSpec = vl.compile(build_spec()).spec;
+                cur_view = new vega.View(vega.parse(vgSpec))
+                    .initialize(document.querySelector('#vis')) // set parent DOM element
+                    .renderer('svg') // set render type (defaults to 'canvas')
+                    .hover() // enable hover event processing
+                    .run();
+                cur_view.addEventListener('click', vegaSelect);
+                $('#uq-res-1').val("None");
+                $('#uq-res-2').val("None");
+
+                $('#query-res-ratio-value').text("None");
+                $('#interv-res-ratio-value').text("None");
+                return;
+            }
+            let tup = [];
+            clicked_item[click_cnt] = new Object(item);
+            let group_rest = {};
+            if (!value_rest || value_rest == '*' || value_rest == 'N/A') {
+
+            } else {
+                group_rest = JSON.parse(value_rest);
+            }
+            for (let k in group_rest) {
+                clicked_item[click_cnt].datum[k] = group_rest[k];
+            }
+            console.log(item);
+            for (let i = 0; i < groupby_attrs.length; i++) {
+                console.log(i, $.trim(groupby_attrs[i]))
+                console.log(item.datum[$.trim(groupby_attrs[i])])
+
+                tup.push(item.datum[$.trim(groupby_attrs[i])].toString());
+                console.log(groupby_attrs[i], tup, !tup[i], group_rest);
+                if (!tup[i]) {
+                    tup[i] = group_rest[$.trim(groupby_attrs[i])];
+                }
+            }
+            for (let k in item.datum) {
+                if (!(groupby_attrs.includes(k)) && !(k.startsWith('_')) && (k != 'Interv')
+                    && !(k.startsWith('sum_') && k.endsWith('_end')) && !(k.startsWith('sum_') && k.endsWith('_start'))) {
+                    tup.push(item.datum[k]);
+                }
+            }
+            let x = tup.join(' --- ');
+            console.log(x);
+
+            clicked_position[click_cnt] = [event.pageX, event.pageY];
+            if (click_cnt == 0) {
+                $('#query-res-ratio-text').text("Selected Value:");
+                $('#query-res-ratio-value').text(item.datum['sum_' + aggregation]);
+            } else {
+                if (click_cnt == 1) {
+                    $('#query-res-ratio-text').text('Selected Ratio:');
+                    $('#query-res-ratio-value').text( parseFloat($('#query-res-ratio-value').text()).toFixed(2) +
+                        ' / ' + parseFloat(item.datum['sum_' + aggregation]).toFixed(2) + ' = ' +
+                        (parseFloat($('#query-res-ratio-value').text()) / item.datum['sum_' + aggregation]).toFixed(2)
+                    );
+                }
+            }
+
+            click_cnt += 1;
+            $('#uq-res-' + click_cnt).val(x).trigger('change');
+        }
+
+        let vgSpec = vl.compile(build_spec()).spec;
+        {
+            // #vegaEmbed('#vis', vgSpec).then(({ spec, view }) => { # }
+            //     { #    view.addEventListener('click', vegaSelect); # }
+            //     { # }); #
+        }
+        if (interv == false) {
+            render(vgSpec).catch(err => console.error(err));
+            {
+                // #vegaEmbed('#vis', vgSpec).then(({ spec, view }) => { # }
+                //     { #    view.addEventListener('click', vegaSelect); # }
+                //     { #    cur_view = view; # }
+                //     { # }); #
+            }
+
+        } else {
+            function newGenerator() {
+                return function () {
+                    if (!value_rest || value_rest == '*') {
+                        return res['interv_query_result'].filter(d => d.Interv);
+                    } else {
+                        let group_rest = {}
+                        if (!value_rest || value_rest == '*' || value_rest == 'N/A') {
+
+                        } else {
+                            group_rest = JSON.parse(value_rest);
+                        }
+                        return res['interv_query_result'].filter(function (d) {
+                            for (let k in group_rest) {
+                                if (d[k] != group_rest[k]) return false;
+                            }
+                            return true;
+                        }).filter(d => d.Interv);
+                    }
+
+                };
+            }
+
+            var valueGenerator = newGenerator();
+            var changeSet = vega
+                .changeset()
+                .insert(valueGenerator())
+                .remove(function (t) {
+                    return t.Interv;
+                });
+            // { #console.log(changeSet); # }
+            cur_view.change('mydata', changeSet).run();
+        }
+
+        function render(spec) {
+            let view = new vega.View(vega.parse(spec), {
+                renderer: 'svg',  // renderer (canvas or svg)
+                container: '#vis',   // parent DOM container
+                hover: true       // enable hover processing
+            });
+            view.addEventListener('click', vegaSelect);
+            cur_view = view;
+
+            return view.runAsync();
+        }
+
+        //BBBBBBBBBBBBBBBBB
+
+
+    }
+
+    function populateOptions(selector, vals) {
+        vals.forEach(function (e, ind) {
+            $(selector).append(
+                $('<option />').text(e).val(e)
+            );
+        });
+    }
+
+    function find_res(res, item) {
+
+        for (let i = 0; i < res.length; i++) {
+            let flag = true;
+            for (let k in item.datum) {
+                if (groupby_attrs.includes(k) && item.datum[k] != res[i][k]) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) return res[i][aggregation];
+        }
+        return 0;
+    }
+
+
+    function printRecDrop(selector, resp) {
+        $(selector).empty();
+        let thead = $('<thead>')
+        let tr = $('<tr>');
+        tr.append($('<th>#</th>'));
+        for (let i = 0; i < resp['attributes'].length; i++) {
+            tr.append($('<th>').text(resp['attributes'][i]));
+        }
+        thead.append(tr);
+        let tbody = $('<tbody>');
+        tbody.addClass('table');
+        for (let j = 0; j < resp['recommended_vars'].length; j++) {
+
+            let tr1 = $('<tr>');
+            tr1.append($('<td>' + j + '</td>'));
+            for (let i = 0; i < resp['attributes'].length; i++) {
+                tr1.append($('<td>').text($.trim(resp['recommended_vars'][j][resp['attributes'][i]])));
+            }
+            tbody.append(tr1);
+        }
+        $(selector).append(thead);
+        $(selector).append(tbody);
+    }
+
+
+    function plotRawTable(selector, resp) {
+        $(selector).empty();
+        let thead = $('<thead>')
+        let tr = $('<tr>');
+        for (let i = 0; i < resp['attributes'].length; i++) {
+            tr.append($('<th>').text(resp['attributes'][i]));
+        }
+        thead.append(tr);
+        let tbody = $('<tbody>');
+        tbody.addClass('table');
+        for (let j = 0; j < resp['result'].length; j++) {
+
+            let tr1 = $('<tr>');
+            for (let i = 0; i < resp['attributes'].length; i++) {
+                tr1.append($('<td>').text($.trim(resp['result'][j][resp['attributes'][i]])));
+            }
+            tbody.append(tr1);
+        }
+        $(selector).append(thead);
+        $(selector).append(tbody);
+    }
+
+    function printTableDimensions(selector, resp){
+        $(selector).empty();
+        $(selector).append('Contains ' + resp['colcount'] + ' attributes and ' + resp['rowcount'] + 
+        ' units; printing first ' + (resp['rowcount'] < 1000 ? resp['rowcount'] : 1000) + '.');
+    }
+
+    function printTE(selector, resp){
+        $(selector).empty();
+        $(selector).append("Average Treatment Effect = " + (Math.round(resp['ate'] * 100) / 100).toFixed(2))
+        $(selector).append('<br>' + "Averate Treatment Effect on the Treated = " + (Math.round(resp['att'] * 100) / 100).toFixed(2))
+
+    }
+
+    function printTreatOut(selector, resp){
+        $(selector).empty();
+        $(selector).append("Selected Treatment Variable = " + resp['treat_var']);
+        $(selector).append('<br>' + "Selected Outcome Variable =  " + resp['out_var']);
+
+    }
+
+
+    function printTooLarge(selector, resp){
+        $(selector).empty();
+        $(selector).append("Result too large; printing first 1000 matches")
+    }
+
+    function printNoMatch(selector, resp){
+        $(selector).empty();
+        $(selector).append("no matches")
+    }
+
+
+    function plotResTable(selector, resp) {
+        $(selector).empty();
+        let thead = $('<thead>')
+        let tr = $('<tr>');
+        for (let i = 0; i < resp['attributes'].length; i++) {
+            tr.append($('<th>').text(resp['attributes'][i]));
+        }
+        thead.append(tr);
+        let tbody = $('<tbody>');
+        tbody.addClass('table');
+        for (let j = 0; j < resp['result'].length; j++) {
+            let tr1 = $('<tr>');
+            for (let i = 0; i < resp['attributes'].length; i++) {
+                tr1.append($('<td>').text($.trim(resp['result'][j][resp['attributes'][i]])));
+            }
+            tbody.append(tr1);
+        }
+        $(selector).append(thead);
+        $(selector).append(tbody);
+
+    }
+
+    function printCATE(selector, resp){
+        $(selector).empty();
+        $(selector).append("Conditional Average Treatment Effect = " + (Math.round(resp['cate'] * 100) / 100).toFixed(2))
+
+    }
+
+
+    function plotMGTable(selector, resp) {
+        console.log('plotMGTable');
+        $(selector).empty();
+        if (resp['no_match'] == 1){
+            $(selector).append("no matches for this unit")
+        }
+        else {
+            let thead = $('<thead>')
+            let tr = $('<tr>');
+            for (let i = 0; i < resp['attributes'].length; i++) {
+                tr.append($('<th>').text(resp['attributes'][i]));
+            }
+            thead.append(tr);
+            let tbody = $('<tbody>');
+            tbody.addClass('table');
+            for (let j = 0; j < resp['matched_group'].length; j++) {
+                let tr1 = $('<tr>');
+                for (let i = 0; i < resp['attributes'].length; i++) {
+                    tr1.append($('<td>').text($.trim(resp['matched_group'][j][resp['attributes'][i]])));
+                }
+                tbody.append(tr1);
+            }
+            $(selector).append(thead);
+            $(selector).append(tbody);
+        }
+    }
+
+    function plotCATEChart(resp){
+
+        //if (chart) chart.dispose();
+        //createChart();
+
+
+        var catedata = [];
+        for (var i = 0; i < resp['cate_of_group'].length; i++){
+            catedata.push({x:resp['group_size_treated'][i], y:(Math.round(resp['cate_of_group'][i] * 100) / 100).toFixed(2)})
+        }  
+
+        chart = anychart.scatter();
+        var series1 = chart.marker(catedata);
+
+        chart.title("Visualizing CATE of Matched Groups");
+        chart.xAxis().title("Number of Treatment Units in Group");
+        chart.yAxis().title("Estimated Treatment Effect of Group");
+
+        chart.xScale().softMinimum(0);
+
+        series1.name("Matched Group Size (x) and CATE (y)");
+
+        chart.yGrid().stroke({color: "#85adad", thickness: 0.7});
+
+
+                
+        //var controller = chart.annotations();
+
+        /**
+        controller.horizontalLine({
+            valueAnchor: 0
+        });
+        **/
+
+        //if (chart.getPlotsCount() > 1){
+        //    chart.plot(1).dispose();
+        //}
+
+
+        chart.container("mychartcontainer")
+        chart.draw();
+        
+    }
+
+    function plotCovarChart(resp){
+
+        //if (chart) chart.dispose();
+        //createChart();
+
+        var covardata = [];
+        for (var i = 0; i < resp['rownames'].length; i++){
+            covardata.push({x:resp['rownames'][i], y:resp['covar_count'][i]})
+        }  
+
+
+        chart = anychart.bar();
+        var series = chart.bar(covardata);
+
+        
+        chart.title("Covariate Importance, measured by number of units matched on each covariate");
+        chart.xAxis().title("Covariate Name");
+        chart.yAxis().title("Number of units matched on covariate");
+        series.name("Number of units")
+
+        /**
+        chart.xScale().softMinimum(0);
+        **/
+
+
+        chart.container("covarchartcontainer");
+        chart.draw();
+
+
+    }
+
+
+    function printLog(){
+        //logging bullshit?
+        $(document).ready(function(){
+            var output = document.getElementById('logoutput');
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', "{{ url_for('log_stream') }}", true);
+            xhr.send();
+            setInterval(function() {
+                output.textContent = xhr.responseText;
+            }, 500);
+        });
+
+    }
+
+
+
+
+
+
+    function plotTable(selector, vals, expand_control, interv = true) {
+        $(selector).empty();
+
+        for (let i = 0; i < vals.length; i++) {
+            let row = $('<tr>');
+
+
+            if (interv) {
+                row.attr('id', 'interv_' + i.toString());
+
+            }
+            else {
+                row.attr('id', 'aggr_' + i.toString());
+            }
+
+
+            // kehan modified
+            var predicates = vals[i].slice(0, -2);
+            // console.log(predicates);
+            var predicates_remove_empty = []
+            for (var val in predicates) {
+                if (!predicates[val].includes('all')) {
+                    predicates_remove_empty.push(predicates[val]);
+                }
+
+            }
+            if (predicates_remove_empty.length == 0) {
+                continue;
+            }
+
+            // let td1 = $('<td>').text(vals[i].slice(0, -1).join(' ∧ '));
+            let td1 = $('<td>').text(predicates_remove_empty.join(' ∧ '));
+            if (expand_control[i] < 0) {
+                td1.css("padding-left", "20px")
+            }
+
+            if (interv) {
+                td1.addClass("interv-expl-td");
+            }
+            else {
+                td1.addClass("aggrav-expl-td");
+            }
+
+            let vVal = parseFloat(vals[i][vals[i].length - 2].toString().replace('score = ', ''));
+            console.log(vVal)
+            if (Number.isNaN(vVal)){
+                vVal = parseFloat(vals[vals.length - 1 ][vals[vals.length -1 ].length - 2].toString().replace('score = ', ''));
+            }
+            let vVal_best = parseFloat(vals[i][vals[i].length - 1].toString().replace('bestscore = ', ''));
+
+            let vStr = vVal.toFixed(2);
+            let vStr_best = vVal_best.toFixed(2);
+            if (vVal >= 100000) {
+                vStr = vVal.toExponential(4);
+            }
+
+            if (vVal_best >= 100000) {
+                vStr_best = vVal_best.toExponential(4);
+            }
+            // if (vStr == NaN){
+            //     vStr =
+            // }
+
+            let td2 = $('<td>').text(vStr + '/' + vStr_best);
+            let thumbup = $('<button/>', {
+                class: "badge badge-success btn-sm",
+                id: (interv ? "interv-" : "aggrav-") + "expl-tu-" + i,
+                title: "Click thumb up if you like this explanation. Attribute recommender will adjust the weights of the ensemble model and the weights of attributes. Click recommend again to get updated recommended attributes.",
+                click: function (e) {
+                    let me = $(this);
+                    e.preventDefault();
+                    if (me.data('requestRunning')) {
+                        return;
+                    }
+                    me.data('requestRunning', true);
+
+                    $(interv ? '.interv-expl-td' : '.aggrav-expl-td').removeClass('table-success');
+                    let cur_predicate = vals[i].slice(0, -1);
+                    updown_history.push({
+                        'last_score': 1,
+                        'vote_pred': vals[i],
+                        'crossout_pred': crossout_predicate,
+                    });
+                    $(interv ? '.interv-expl-td' : '.aggrav-expl-td').each(function (idx) {
+                        let arr = $(this).text().split(' ∧ ');
+                        if (vals[i].slice(0, -1).every(val => arr.includes(val))) {
+                            $(this).addClass('table-success');
+                        }
+                    });
+
+                    sendFeedback(cur_predicate, me, 1);
+                }
+            });
+            let thumbdown = $('<button/>', {
+                class: "badge badge-danger btn-sm",
+                id: (interv ? "interv-" : "aggrav-") + "expl-td-" + i,
+                title: "Click thumb down if you don'tlike this explanation. Current explanation will removed from the explanation list. Attribute recommender will adjust the weights of the ensemble model and the weights of attributes. Click recommend again to get updated recommended attributes.",
+                click: function (e) {
+
+                    e.preventDefault();
+                    let me = $(this);
+                    if (me.data('requestRunning') || $('.btn-expl').data('requestRunning')) {
+                        return;
+
+                    }
+                    crossout_predicate.push(vals[i].slice(0, -1));
+                    let cur_predicate = vals[i].slice(0, -1);
+                    updown_history.push({
+                        'last_score': -1,
+                        'vote_pred': vals[i],
+                        'crossout_pred': crossout_predicate.slice(),
+                    });
+
+                    sendFeedback(cur_predicate, me, -1);
+                    $('.btn-expl').data('requestRunning', true);
+
+                    console.log(crossout_predicate);
+                    requestExplanation(crossout_predicate, $('.btn-expl'));
+                }
+            });
+            thumbup.append($('<span class="fa fa-thumbs-up"></span></button>'));
+            thumbdown.append($('<span class="fa fa-thumbs-down"></span></button>'));
+            // thumbdown.oncl
+            let btn_expand = $('<button id="btn_expand_' + (i).toString() + '"' + ' class="badge badge-light btn-sm" title="Click to see the explanations that generated from this atomic predicates (in green). The score for the current attribute and the best score within the explanation group show on the score/best." "><span class="fa fa-plus" aria-hidden="true"></span></button>')
+            var $int_tb = $('#table-interv-expl')
+
+            row.data('expand', expand_control[i])
+            if (expand_control[i] > 0) {
+                row.css("display", "table-row");
+            }
+            else {
+                row.css("display", "none");
+            }
+            if ($('#interv_' + (i).toString()).data('expand') < 0) {
+                $('btn_expand_' + (i).toString()).css("display", "none");
+            }
+
+            $(function () {
+                btn_expand.click(function () {
+                    if (interv) {
+                        var idx = $('#interv_' + (i).toString()).data('expand') * -1
+                        if ($('#interv_' + (i).toString()).hasClass('table-danger')) {
+                            $('#interv_' + (i).toString()).removeClass('table-danger');
+                        }
+                        else {
+                            $('#interv_' + (i).toString()).addClass('table-danger')
+                        }
+                        for (let j = 0; j < vals.length; j++) {
+                            if ($('#interv_' + (j).toString()).data('expand') == idx) {
+                                if ($('#interv_' + (j).toString()).is(':visible')) {
+                                    $('#interv_' + (j).toString()).css("display", "none");
+
+                                }
+                                else {
+                                    $('#interv_' + (j).toString()).css("display", "");
+                                    $('#interv_' + (j).toString()).addClass('table-success')
+
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        var idx = $('#aggr_' + (i).toString()).data('expand') * -1
+                        if ($('#aggr_' + (i).toString()).hasClass('table-danger')) {
+                            $('#aggr_' + (i).toString()).removeClass('table-danger');
+                        }
+                        else {
+                            $('#aggr_' + (i).toString()).addClass('table-danger')
+                        }
+
+                        for (let j = 0; j < vals.length; j++) {
+                            if ($('#aggr_' + (j).toString()).data('expand') == idx) {
+                                if ($('#aggr_' + (j).toString()).is(':visible')) {
+                                    $('#aggr_' + (j).toString()).css("display", "none");
+                                }
+                                else {
+                                    $('#aggr_' + (j).toString()).css("display", "");
+                                    $('#aggr_' + (j).toString()).addClass('table-success')
+                                }
+                            }
+                        }
+                    }
+                })
+            })
+
+
+            let td3 = $('<td>').append(thumbup).append(thumbdown);
+            if (expand_control[i] > 0) {
+                td3.append(btn_expand)
+            }
+
+            row.append(td1);
+            row.append(td2);
+            row.append(td3);
+
+            // kehan modify for showing distribution of a range query
+            td1.on("click", function (e) {
+                if (range_exp) {
+                    $('.test-result-base2').removeClass('d-none');
+
+                    $('#ra-result-state2').removeClass('d-none');
+                    $('#ra-result-state2').attr('class', 'text-info');
+                    $('#ra-result-state2').html('Running');
+
+                    $('#ra-test-wait2').removeClass('d-none');
+                    $('#query-result2').removeClass('d-none');
+                    // $('#vis_res').removeClass('d-none');
+
+
+                    $('td.table-active').removeClass('table-active');
+                    $(this).addClass('table-active');
+                    let formData = new FormData($('#query-form')[0]);
+                    formData.append('sql-select-exp', $(this).text());
+                    formData.append('sql-all-exp', checked_attrs)
+                    formData.append("sql-add-where", $('#sql-add-where').val());
+                    formData.append('is-interv', interv);
+                    formData.append('$uq-res-1', $('#uq-res-1').val());
+                    formData.append('$uq-res-2', $('#uq-res-2').val());
+                    formData.append('range-exp', "True");
+
+                    console.log($(this).text(), $('#sql-add-where').val(), interv);
+                    // Show range explanation result on main plot
+                    $.ajax({
+                        url: '/run_interv_query',
+                        type: 'POST',
+                        dataType: "json",
+                        data: formData,
+                        // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+                        success: function (response) {
+
+                            for (let i = 0; i < response['query_result'].length; i++) {
+                                // { #response['query_result'][i]['Interv_' + response['aggregation']] =# }
+                                // { #    response['interv_query_result'][i][response['aggregation']]# }
+                                response['query_result'][i]['Interv'] = false;
+                                if (i < response['interv_query_result'].length) {
+                                    response['interv_query_result'][i]['Interv'] = true;
+                                }
+                            }
+                            response['query_result'] = response['query_result'].concat(response['interv_query_result']);
+
+
+                            //HHHHHHHHHHH
+                            console.log(response)
+                            printTE("#view-treatment-effect", response)
+                            plotResTable('#view-res-table', response);
+
+
+                            plot_query_result(response, true,
+                                attr_col = $('#attr-col').val(),
+                                attr_x = $('#attr-x').val(),
+                                attr_color = $('#attr-color').val(),
+                                value_rest = $('#value-rest').val()
+                            );
+
+                            if (click_cnt == 1) {
+                                $('#interv-res-ratio-text').text("New Value After Deletion:");
+                                $('#interv-res-ratio-value').text(find_res(response['interv_query_result'], clicked_item[click_cnt - 1]));
+                                $('#interv-res-ratio').removeClass('d-none');
+                            } else {
+                                if (click_cnt == 2) {
+                                    console.log(clicked_item)
+                                    console.log(response['interv_query_result'])
+                                    $('#interv-res-ratio-text').text('New Ratio After Deletion:');
+                                    let v1 = find_res(response['interv_query_result'], clicked_item[0]);
+                                    let v2 = find_res(response['interv_query_result'], clicked_item[1]);
+                                    $('#interv-res-ratio-value').text( (v1).toFixed(2) + ' / ' + (v2).toFixed(2) + ' = ' + (v1 / v2).toFixed(2));
+                                    if (v1 === undefined) {
+                                        $('#interv-res-ratio-value').text('0.00');
+                                    }
+                                    if (v2 === undefined || v2 === 0) {
+                                        $('#interv-res-ratio-value').text('Infinity');
+                                    }
+
+                                    $('#interv-res-ratio').removeClass('d-none');
+                                }
+                            }
+
+
+                        }
+                        ,
+                        error: function (d) {
+                            console.log('error', d);
+                            window.location.replace('/flame');
+                        },
+                        complete: function () {
+                            // { #me.data('requestRunning', false); # }
+                        },
+                        contentType: false,
+                        processData: false
+                    });
+
+                    $.ajax({
+                        url: '/range_explanation',
+                        type: 'POST',
+                        dataType: "json",
+                        data: formData,
+                        // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+                        success: function (response) {
+                            console.log('success');
+                            console.log(response);
+                            console.log(response['attr_ranges']);
+                            $('#range-plots').empty();
+                            selected_range = {}
+
+                            row = $('<div class="row"> </div>')
+
+                            button = $('<button>select range </button>').attr('type', 'button');
+                            button.attr('class', 'btn btn-sm btn-warning');
+                            row.append(button);
+
+                            $('#range-plots').append(row);
+                            var dive_in = []
+                            for (let i = 0; i < response['query_results'].length; i++) {
+                                dive_in.push('False')
+
+                                card = $('<div class="card">')
+                                card_body = $('<div class="card-body">')
+                                card.append(card_body)
+                                $('#range-plots').append(card);
+
+                                div = $('<div>').attr('id', 'vis'.concat(i.toString()));
+
+                                button_for_attr_div = $('<div' + ' id="attr-change-' + i.toString() + '" class="btn-group btn-group-sm">')
+                                button_for_attr_norm = $('<button type="button" value="False' + '" class="btn btn-secondary active">Show Entire Distribution</button>')
+                                button_for_attr_interv = $('<button type="button" value="interv" class="btn btn-secondary">Intervention</button>')
+                                button_for_attr_aggr = $('<button type="button" value="aggr" class="btn btn-secondary">Aggravation</button>')
+
+                                button_for_attr_div.append(button_for_attr_norm)
+                                button_for_attr_div.append(button_for_attr_interv)
+                                button_for_attr_div.append(button_for_attr_aggr)
+
+                                // console.log('#attr-change' +   ' button' )
+
+                                var attr_ranges = response['attr_ranges'][i]
+
+
+                                if (response['attr_ranges'][i] != "DNE") {
+
+                                    button_for_dive_in_div = $('<div>').attr('class', 'custom-control custom-switch');
+                                    button_for_dive_in_input = $('<input type="checkbox" class="custom-control-input" id="customSwitch' + i.toString() + '">');
+                                    button_for_dive_in_label = $('<label class="custom-control-label" for="customSwitch' + i.toString() + '">Dive in for range (' + response['attr_ranges'][i][0] + ' , ' + response['attr_ranges'][i][1] + ') </label>');
+
+                                    button_for_dive_in_div.append(button_for_dive_in_input);
+                                    button_for_dive_in_div.append(_for_dive_in_label)
+
+
+
+
+                                    // $('#range-plots').append(button_for_dive_in_div);
+                                    // $('#range-plots').append(div);
+
+                                    card_body.append(div);
+                                    card_body.append(button_for_dive_in_div);
+                                    card_body.append(button_for_attr_div)
+
+                                    dive_in[i] = 'False'
+                                    plot_spec_range_exp(response['query_results'][i], response['aggr'], '#vis'.concat(i.toString()), 'False', response['attr_ranges'][i]);
+
+                                    $("#customSwitch" + i.toString()).on('change', function () {
+                                        if ($(this).is(':checked')) {
+                                            $('#' + 'vis'.concat(i.toString())).empty();
+                                            dive_in[i] = 'True'
+                                            plot_spec_range_exp(response['query_results'][i], response['aggr'], '#vis'.concat(i.toString()), 'True', response['attr_ranges'][i]);
+                                            console.log(response['attr_ranges'][i]);
+                                        }
+                                        else {
+                                            $('#' + 'vis'.concat(i.toString())).empty();
+                                            dive_in[i] = 'False'
+                                            plot_spec_range_exp(response['query_results'][i], response['aggr'], '#vis'.concat(i.toString()), 'False', response['attr_ranges'][i]);
+                                        }
+                                    });
+                                }
+                                else {
+                                    // $('#range-plots').append(div);
+                                    card_body.append(div);
+                                    card_body.append(button_for_attr_div);
+                                    dive_in[i] = 'False'
+                                    plot_spec_range_exp(response['query_results'][i], response['aggr'], '#vis'.concat(i.toString()), 'False', "DNE");
+                                }
+
+
+                                $('#attr-change-' + i.toString() + ' .btn').on('click', function (event) {
+
+                                    var thisBtn = $(this);
+                                    thisBtn.addClass('active').siblings().removeClass('active');
+                                    var btnText = thisBtn.val();
+                                    console.log(btnText, i.toString());
+
+                                    $('#' + 'vis'.concat(i.toString())).empty();
+
+
+                                    if (btnText == 'False') {
+                                        plot_spec_range_exp(response['query_results'][i], response['aggr'], '#vis'.concat(i.toString()), dive_in[i], response['attr_ranges'][i]);
+
+                                    }
+                                    else if (btnText == 'interv') {
+                                        plot_spec_range_exp(response['interv_change_results'][i], response['aggr'], '#vis'.concat(i.toString()), dive_in[i], response['attr_ranges'][i]);
+                                    }
+                                    else if (btnText == 'aggr') {
+                                        plot_spec_range_exp(response['aggr_change_results'][i], response['aggr'], '#vis'.concat(i.toString()), dive_in[i], response['attr_ranges'][i]);
+                                    }
+
+                                });
+
+                            }
+                            button.on("click", function (f) {
+                                console.log(selected_range)
+                                let select_range_attrs = [];
+                                let select_range_attrs_data = [];
+
+                                for (var key in selected_range) {
+                                    select_range_attrs.push(key);
+                                    select_range_attrs_data.push(selected_range[key]);
+                                }
+                                console.log(select_range_attrs);
+                                console.log(select_range_attrs_data);
+
+                                formData.set('select_range_attrs', select_range_attrs);
+                                formData.set('select_range_attrs_data', select_range_attrs_data);
+                                $.ajax({
+                                    url: '/user_range_explanation',
+                                    type: 'POST',
+                                    dataType: "json",
+                                    data: formData,
+                                    // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+                                    success: function (res) {
+                                        range_box = $('<div>');
+                                        range_box.attr('class', 'input-group input-group-sm');
+                                        range_prepend = $('<div class = "input-group-prepend"> </div>');
+                                        range_span = $('<span class="input-group-text">Selected Ranges: </span>');
+                                        range_input = $('<p></p>');
+                                        // range_input.attr('class', 'form-control');
+                                        let range_text = '';
+                                        for (var key in selected_range) {
+                                            range_text = range_text.concat(key, " = ( ", selected_range[key][0], ' , ', selected_range[key][1], " ) ∧ ");
+                                            console.log(range_text);
+                                        }
+
+                                        // trim the last ' ^ '
+                                        range_text = range_text.slice(0, -3);
+
+                                        formData.set('sql-select-exp', range_text);
+
+                                        range_input.text(range_text);
+
+                                        range_prepend.append(range_span);
+                                        range_box.append(range_prepend);
+                                        range_box.append(range_input);
+
+                                        intervention_box = $('<div>');
+                                        intervention_box.attr('class', 'input-group input-group-sm');
+                                        intervention_prepend = $('<div class = "input-group-prepend"> </div>');
+                                        intervention_span = $('<span class="input-group-text">New Intervention Score: </span>');
+                                        intervention_input = $('<p></p>');
+                                        intervention_input.attr('class', 'form-control form-control-sm');
+                                        intervention_input.text(res['intervention'])
+
+                                        intervention_prepend.append(intervention_span);
+                                        intervention_box.append(intervention_prepend);
+                                        intervention_box.append(intervention_input);
+
+
+                                        aggravation_box = $('<div>');
+                                        aggravation_box.attr('class', 'input-group input-group-sm');
+                                        aggravation_prepend = $('<div class = "input-group-prepend"> </div>');
+                                        aggravation_span = $('<span class="input-group-text">New Aggravation Score: </span>');
+                                        aggravation_input = $('<p></p>');
+                                        aggravation_input.attr('class', 'form-control form-control-sm');
+                                        aggravation_input.text(res['aggravation'])
+
+                                        aggravation_prepend.append(aggravation_span);
+                                        aggravation_box.append(aggravation_prepend);
+                                        aggravation_box.append(aggravation_input);
+
+
+                                        row.append(range_box);
+                                        row.append(intervention_box);
+                                        row.append(aggravation_box);
+
+                                        // Change main plot based on explanations
+                                        $.ajax({
+                                            url: '/run_interv_query',
+                                            type: 'POST',
+                                            dataType: "json",
+                                            data: formData,
+                                            // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+                                            success: function (response) {
+
+                                                for (let i = 0; i < response['query_result'].length; i++) {
+                                                    // { #response['query_result'][i]['Interv_' + response['aggregation']] =# }
+                                                    // { #    response['interv_query_result'][i][response['aggregation']]# }
+                                                    response['query_result'][i]['Interv'] = false;
+                                                    if (i < response['interv_query_result'].length) {
+                                                        response['interv_query_result'][i]['Interv'] = true;
+                                                    }
+                                                }
+                                                response['query_result'] = response['query_result'].concat(response['interv_query_result']);
+
+                                                //HHHHHHHHHHH
+                                                console.log(response)
+                                                printTE("#view-treatment-effect", response)
+                                                plotResTable('#view-res-table', response);
+
+
+
+                                                plot_query_result(response, true,
+                                                    attr_col = $('#attr-col').val(),
+                                                    attr_x = $('#attr-x').val(),
+                                                    attr_color = $('#attr-color').val(),
+                                                    value_rest = $('#value-rest').val()
+                                                );
+
+                                                if (click_cnt == 1) {
+                                                    $('#interv-res-ratio-text').text("New Value After Deletion:");
+                                                    $('#interv-res-ratio-value').text(find_res(response['interv_query_result'], clicked_item[click_cnt - 1]));
+                                                    $('#interv-res-ratio').removeClass('d-none');
+                                                } else {
+                                                    if (click_cnt == 2) {
+                                                        console.log(clicked_item)
+                                                        console.log(response['interv_query_result'])
+                                                        $('#interv-res-ratio-text').text('New Ratio After Deletion:');
+                                                        let v1 = find_res(response['interv_query_result'], clicked_item[0]);
+                                                        let v2 = find_res(response['interv_query_result'], clicked_item[1]);
+                                                        $('#interv-res-ratio-value').text(v1.toFixed(2) + ' / ' + v2.toFixed(2) + ' = ' + (v1 / v2).toFixed(2));
+                                                        if (v1 === undefined) {
+                                                            $('#interv-res-ratio-value').text('0.00');
+                                                        }
+                                                        if (v2 === undefined || v2 === 0) {
+                                                            $('#interv-res-ratio-value').text('Infinity');
+                                                        }
+
+                                                        $('#interv-res-ratio').removeClass('d-none');
+                                                    }
+                                                }
+
+
+                                            }
+                                            ,
+                                            error: function (d) {
+                                                console.log('error', d);
+                                                // window.location.replace('/interv');
+                                            },
+                                            complete: function () {
+                                                // { #me.data('requestRunning', false); # }
+                                            },
+                                            contentType: false,
+                                            processData: false
+                                        });
+
+
+
+                                    },
+                                    error: function (d) {
+                                        console.log('error', d);
+                                        // window.location.replace('/interv');
+                                    },
+                                    complete: function () {
+                                        // { #me.data('requestRunning', false); # }
+                                    },
+                                    contentType: false,
+                                    processData: false
+                                });
+                            })
+
+
+                        },
+                        error: function (d) {
+                            console.log('error', d);
+                            // window.location.replace('/interv');
+                        },
+                        complete: function () {
+                            // { #me.data('requestRunning', false); # }
+                        },
+                        contentType: false,
+                        processData: false
+                    });
+
+
+
+                }
+                else {
+                    // { #$(this).addClass('active').siblings().removeClass('active'); # }
+                    $('td.table-active').removeClass('table-active');
+                    $(this).addClass('table-active');
+                    let formData = new FormData($('#query-form')[0]);
+                    formData.append('sql-where', $(this).text());
+                    formData.append("sql-add-where", $('#sql-add-where').val());
+                    formData.append('is-interv', interv);
+                    formData.append('range-exp', "False");
+                    console.log($(this).text(), $('#sql-add-where').val(), interv);
+                    $.ajax({
+                        url: '/run_interv_query',
+                        type: 'POST',
+                        dataType: "json",
+                        data: formData,
+                        // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+                        success: function (response) {
+                            for (let i = 0; i < response['query_result'].length; i++) {
+                                // { #response['query_result'][i]['Interv_' + response['aggregation']] =# }
+                                // { #    response['interv_query_result'][i][response['aggregation']]# }
+                                response['query_result'][i]['Interv'] = false;
+                                if (i < response['interv_query_result'].length) {
+                                    response['interv_query_result'][i]['Interv'] = true;
+                                }
+                            }
+                            response['query_result'] = response['query_result'].concat(response['interv_query_result']);
+
+                            //HHHHHHHHHHH
+
+                            console.log(response)
+                            printTE("#view-treatment-effect", response)
+                            plotResTable('#view-res-table', response);
+
+
+
+                            plot_query_result(response, true,
+                                attr_col = $('#attr-col').val(),
+                                attr_x = $('#attr-x').val(),
+                                attr_color = $('#attr-color').val(),
+                                value_rest = $('#value-rest').val()
+                            );
+                            if (click_cnt == 1) {
+                                $('#interv-res-ratio-text').text("New Value After Deletion:");
+                                $('#interv-res-ratio-value').text(find_res(response['interv_query_result'], clicked_item[click_cnt - 1]));
+                                $('#interv-res-ratio').removeClass('d-none');
+                            } else {
+                                if (click_cnt == 2) {
+                                    $('#interv-res-ratio-text').text('New Ratio After Deletion:');
+                                    let v1 = find_res(response['interv_query_result'], clicked_item[0]);
+                                    let v2 = find_res(response['interv_query_result'], clicked_item[1]);
+                                    $('#interv-res-ratio-value').text(v1.toFixed(2) + ' / ' + v2.toFixed(2) + ' = ' + (v1 / v2).toFixed(2));
+                                    if (v1 === undefined) {
+                                        $('#interv-res-ratio-value').text('0.00');
+                                    }
+                                    if (v2 === undefined || v2 === 0) {
+                                        $('#interv-res-ratio-value').text('Infinity');
+                                    }
+
+                                    $('#interv-res-ratio').removeClass('d-none');
+                                }
+                            }
+                        },
+                        error: function (d) {
+                            console.log('error', d);
+                            window.location.replace('/flame');
+                        },
+                        complete: function () {
+                            // { #me.data('requestRunning', false); # }
+                        },
+                        contentType: false,
+                        processData: false
+                    });
+                }
+
+            });
+            $(selector).append(row);
+        }
+
+        $('#table-interv-expl').bootstrapTable('hideRow', { index: 1 });
+    }
+
+    function sendFeedback(predicate_list, me, score) {
+        let formData = new FormData($('#query-form')[0]);
+        let explFormData = $('#question-form').serializeArray();
+        for (let i = 0; i < explFormData.length; i++) {
+            formData.append(explFormData[i].name, explFormData[i].value);
+        }
+        formData.append("sql-add-where", $('#sql-add-where').val());
+        formData.append("predicate-list", JSON.stringify(predicate_list));
+        formData.append("user-score", JSON.stringify(score));
+
+        $.ajax({
+            url: '/user_feedback',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                $('#expl-result-state').removeClass('text-info');
+
+                new_recom_score = response['new_recom_scores']
+                console.log(new_recom_score)
+                console.log(new_recom_score.length)
+                let max_score = 0;
+                for (let i = 0; i < new_recom_score.length; i++) {
+                    if (new_recom_score[i][1] > max_score) {
+                        max_score = new_recom_score[i][1];
+                    }
+                }
+
+                groupby_attrs = $('#sql-select').val().split(',').map(item => $.trim(item));
+
+                for (let i = 0; i < groupby_attrs.length; i++) {
+                    console.log(groupby_attrs[i])
+                    $('#recom-score-' + groupby_attrs[i]).text("Selected");
+                }
+
+
+                for (let i = 0; i < new_recom_score.length; i++) {
+                    let attr = new_recom_score[i][0];
+                    // d3.select('#rec-score-rect-' + attr)
+                    //     .style("aria-valuenow", function () {
+                    //         return (d3.interpolateGreens(response.recommended_attributes[i][1] / max_score));
+                    //     });
+                    d3.select('#rec-score-rect-' + attr)
+                        .style("fill", function () {
+                            return (d3.color('#9ecae1'));
+                        });
+                    d3.select('#rec-score-rect-' + attr)
+                        .style("width", function () {
+                            return (new_recom_score[i][1] / max_score * 50);
+                        });
+                    let score_text = (new_recom_score[i][1] / max_score).toFixed(2).toString()
+                    $('#recom-score-' + attr).text(score_text);
+                }
+            },
+            error: function (d) {
+                console.log('error', d);
+            },
+            complete: function () {
+                me.data('requestRunning', false);
+            },
+            contentType: false,
+            processData: false
+        });
+
+    }
+
+
+    function requestExplanation(predicate_blacklist = null, me) {
+
+        let formData = new FormData($('#query-form')[0]);
+        let explFormData = $('#question-form').serializeArray();
+        for (let i = 0; i < explFormData.length; i++) {
+            formData.append(explFormData[i].name, explFormData[i].value);
+        }
+        formData.append("sql-add-where", $('#sql-add-where').val());
+
+        // kehan modify
+        formData.append("range-exp", range_exp);
+        // formData.append("cont_attrs", )
+
+        var checkbox = $(".attr-list").find("input[type=checkbox]");
+        checked_attrs = []
+        $.each(checkbox, function (key, val) {
+            if ($(this).is(":checked")) {
+                formData.append($(val).attr('name'), true);
+                checked_attrs.push($(val).attr('name'));
+            } else {
+                formData.append($(val).attr('name'), false);
+            }
+        });
+        formData.append("predicate-blacklist", JSON.stringify(predicate_blacklist));
+        $('.expl-status-base').removeClass('d-none');
+        $('#expl-result-state').removeClass('d-none');
+        $('#expl-result-state').attr('class', 'text-info');
+        $('#expl-result-state').html('Running');
+        $('#expl-test-wait').removeClass('d-none');
+
+        $.ajax({
+            url: '/explain_query_result',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+            success: function (response) {
+                $('#expl-result-state').removeClass('text-info');
+                $('#expl-result-state').removeClass('d-none');
+                $('#expl-result-state').attr('class', 'text-success');
+                $('#expl-result-state').html('Finished');
+                $('#expl-test-wait').attr('class', 'd-none');
+                $('#expl-result').removeClass('d-none');
+                $('.expl-result-base').removeClass('d-none');
+                plotTable('#table-interv-expl-body', response['explanations'][0], response['expand_controls'][0], true);
+                plotTable('#table-aggrav-expl-body', response['explanations'][1], response['expand_controls'][1], false);
+
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+                me.data('requestRunning', false);
+            },
+            contentType: false,
+            processData: false
+        });
+
+    }
+
+    function recommendAttributes(predicate_blacklist = null, me) {
+
+        let formData = new FormData($('#query-form')[0]);
+        let explFormData = $('#question-form').serializeArray();
+        for (let i = 0; i < explFormData.length; i++) {
+            formData.append(explFormData[i].name, explFormData[i].value);
+        }
+        formData.append("sql-add-where", $('#sql-add-where').val());
+        formData.append('range-exp', range_exp)
+        var checkbox = $(".attr-list").find("input[type=checkbox]");
+        $.each(checkbox, function (key, val) {
+            if ($(this).is(":checked")) {
+                formData.append($(val).attr('name'), true);
+            } else {
+                formData.append($(val).attr('name'), false);
+            }
+
+        });
+        $.each(checkbox, function (key, val) {
+            $(this).prop('checked', false);
+        });
+        formData.append("predicate-blacklist", JSON.stringify(predicate_blacklist));
+        formData.append("rec-k-attr", $('#rec-k-attr').val());
+
+        $.ajax({
+            url: '/recommend_attributes',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+            success: function (response) {
+                $('#expl-result-state').removeClass('text-info');
+
+                let max_score = 0;
+                for (let i = 0; i < response.recommended_attributes.length; i++) {
+                    if (response.recommended_attributes[i][1] > max_score) {
+                        max_score = response.recommended_attributes[i][1];
+                    }
+                }
+
+                for (let i = 0; i < Math.min($('#rec-k-attr').attr('value'), response.recommended_attributes.length); i++) {
+                    let attr = response.recommended_attributes[i][0];
+                    $('#checkbox-' + attr).prop('checked', true);
+                }
+
+                for (let i = 0; i < groupby_attrs.length; i++) {
+                    console.log(groupby_attrs[i])
+                    $('#recom-score-' + groupby_attrs[i]).text("Selected");
+                    d3.select('#rec-score-rect-' + groupby_attrs[i]).style("width",0);
+                }
+
+                for (let i = 0; i < response.disabled_list.length; i++) {
+                    $('#recom-score-' + response.disabled_list[i]).text("Disabled");
+                    d3.select('#rec-score-rect-' + response.disabled_list[i]).style("width",0);
+                }
+
+
+                console.log(response.recommended_attributes)
+
+                for (let i = 0; i < response.recommended_attributes.length; i++) {
+                    let attr = response.recommended_attributes[i][0];
+                    // d3.select('#rec-score-rect-' + attr)
+                    //     .style("aria-valuenow", function () {
+                    //         return (d3.interpolateGreens(response.recommended_attributes[i][1] / max_score));
+                    //     });
+                    d3.select('#rec-score-rect-' + attr)
+                        .style("fill", function () {
+                            return (d3.color('#9ecae1'));
+                        });
+                    d3.select('#rec-score-rect-' + attr)
+                        .style("width", function () {
+                            return (response.recommended_attributes[i][1] / max_score * 10);
+                        });
+                    let score_text = (response.recommended_attributes[i][1] / max_score).toFixed(2).toString(2)
+                    
+                    $('#recom-score-' + attr).text(score_text);
+                }
+
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+                me.data('requestRunning', false);
+            },
+            contentType: false,
+            processData: false
+        });
+
+    }
+
+    function getMMG(predicate_blacklist = null, me){
+        let formData = new FormData($('#query-form')[0]);
+        let explFormData = $('#question-form').serializeArray();
+        for (let i = 0; i < explFormData.length; i++) {
+            formData.append(explFormData[i].name, explFormData[i].value);
+        }
+
+        formData.append("entry-id", $('#entry-id').val())
+
+
+
+        $.ajax({
+            url: '/get_mmg',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+            success: function (response) {
+
+                console.log(response)
+
+                //document.write("hello 2")
+
+                printCATE('#view-cate-value',response)
+                plotMGTable('#view-mg-table',response)
+
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+                me.data('requestRunning', false);
+            },
+            contentType: false,
+            processData: false
+        });
+
+    }
+
+    $(document).on('click', '.btn-mg', function (e) {
+        let me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning')) {
+            return;
+        }
+        //if ($('#uq-res-1').val() == null) {
+        //    alert('Please specify a question first.');
+        //    return;
+        //}
+        me.data('requestRunning', true);
+        // console.log({{table_numeric_attr[active_table]}})
+        // console.log({{table_datatype[active_table]}})
+        getMMG([], me);
+    });
+
+
+
+    {
+        // #$(document).ready(function () { # }
+        //    { #$('.btn-add-where').tooltip() # }
+        // { ## }
+        // { # }); #
+    }
+
+
+    $(document).on('click', '.btn-run', function (e) {
+        var me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning')) {
+            return;
+        }
+        me.data('requestRunning', true);
+        // kehan modified
+        $('#range-plots').empty();
+        let formData = new FormData($('#query-form')[0]);
+        //formData.append("sql-add-where", $('#sql-add-where').val());
+        //formData.append("res_table", "res_table");
+
+
+        var features = [];
+        $('.feature input[type="checkbox"]:checked').each(function() {
+            features.push($(this).val());
+        });
+        formData.append("exclude", features)
+
+        //temporarily disable treat condition
+        formData.append("treat_condition", "")
+
+        //formData.set("sql-select", "x1");
+        //formData.set("sql-aggregate", "COUNT(*)")
+
+        //formData.set("sql-group-by", "x1")
+
+
+
+
+
+
+        algorithm = "flame"
+        // if (document.getElementById("dame").checked){
+        //     algorithm = "dame"
+        // }
+        formData.set("algorithm", algorithm)
+
+
+
+        aggregation = $.trim($('#sql-aggregate').val());
+        $('.test-result-base').removeClass('d-none');
+
+        $('#ra-result-state').removeClass('d-none');
+        $('#ra-result-state').attr('class', 'text-info');
+        $('#ra-result-state').html('Running');
+        $('#ra-test-wait').removeClass('d-none');
+
+
+        /**
+                        //logging bullshit?
+        $(document).ready(function(){
+            var output = document.getElementById('logoutput');
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', "{{ url_for('log_stream') }}", true);
+            xhr.send();
+            setInterval(function() {
+                output.textContent = xhr.responseText;
+            }, 500);
+        });
+        **/
+
+        document.getElementById("loading").innerHTML = "&nbsp; Matching, please wait...";
+
+
+
+        $.ajax({
+            url: '/run_query',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+
+
+            
+            success: function (response) {
+
+                //HHHHHHHHHHH
+                ///four 4
+
+                document.getElementById("loading").innerHTML = "&nbsp; Done";
+
+
+                console.log(response);
+
+                printTreatOut("#view-treat-out", response);
+
+                printTE("#view-treatment-effect", response);
+
+                if (response['too_large']==1){
+                    //printTooLarge("#view-too-large", response);
+                    document.getElementById("too-large").innerHTML = "&nbsp; Result too large; printing first 1000 matches" + "<br />";
+                }
+
+                if (response['no_match']==1){
+                    //printNoMatch("#view-no-match", response);
+                    document.getElementById("no-match").innerHTML = "&nbsp; No matches." + "<br />"
+                } 
+                else {
+                    plotResTable('#view-res-table', response);
+
+                }
+
+
+
+
+                plotCovarChart(response);
+                plotCATEChart(response);
+
+                //printLog();
+
+                document.getElementById("logoutput").innerHTML = response['logoutput']
+
+
+
+
+
+
+
+
+
+
+
+
+                
+                
+
+                /**
+                $('#ra-result-state').removeClass('text-info');
+                $('#ra-result-state').removeClass('d-none');
+                $('#ra-result-state').attr('class', 'text-success');
+                $('#ra-result-state').html('Finished');
+                $('#ra-test-wait').attr('class', 'd-none');
+                $('#query-result').removeClass('d-none');
+                for (let i = 0; i < response['query_result'].length; i++) {
+                    response['query_result'][i]['Interv'] = false;
+                }
+                let qr_list = [];
+                for (let i = 0; i < response['query_result'].length; i++) {
+                    let x = JSON.parse(JSON.stringify(response['query_result'][i]));
+                    x['Interv'] = true;
+                    x[aggregation] = 0;
+                    qr_list.push(response['query_result'][i]);
+                    // { #qr_list.push(x); # }
+                }
+                groupby_attrs = $('#sql-select').val().split(',').map(item => $.trim(item));
+                let options = response['query_result'].map(item => {
+                    let x = "";
+                    let tup = [];
+                    for (let i = 0; i < groupby_attrs.length; i++) {
+                        tup.push(item[$.trim(groupby_attrs[i])]);
+                    }
+                    for (let k in item) {
+                        if (!(groupby_attrs.includes(k)) && k != 'Interv') {
+                            tup.push(item[k]);
+                        }
+                    }
+                    x = tup.join(' --- ');
+                    return x;
+                });
+                response['query_result'] = qr_list;
+                $('#uq-res-1').empty();
+                $('#uq-res-2').empty();
+                populateOptions('#uq-res-1', ['None']);
+                populateOptions('#uq-res-1', options);
+                populateOptions('#uq-res-2', ['None']);
+                populateOptions('#uq-res-2', options);
+                $('#attr-col').empty();
+                populateOptions('#attr-col', groupby_attrs);
+                $('#attr-x').empty();
+                populateOptions('#attr-x', groupby_attrs);
+                $('#attr-color').empty();
+                populateOptions('#attr-color', groupby_attrs);
+                let rest_attr = groupby_attrs.slice(2, groupby_attrs.length);
+                let rest_vals = {};
+                if (rest_attr.length > 0) {
+                    for (let i = 0; i < response['query_result'].length; i++) {
+                        let v = {};
+                        for (let j = 0; j < rest_attr.length; j++) {
+                            v[rest_attr[j]] = response['query_result'][i][rest_attr[j]];
+                        }
+                        let v_str = JSON.stringify(v);
+                        if (!(v_str in rest_vals)) {
+                            rest_vals[v_str] = true;
+                        }
+                    }
+                    $('#value-rest').empty();
+                    let rest_val_options = Object.keys(rest_vals);
+                    // { #populateOptions('#value-rest', ['*']); # }
+                    populateOptions('#value-rest', rest_val_options);
+                    $('#value-rest').val(rest_val_options[0]);
+                    $('#query-res-group-1').text("for group: " + rest_val_options[0]);
+                } else {
+                    $('#value-rest').empty();
+                    $('#query-res-group-1').text("");
+                    populateOptions('#value-rest', ['N/A']);
+                }
+                if (groupby_attrs.length < 3) {
+                    $('#attr-col').val(groupby_attrs[0]).trigger('change');
+                    $('#attr-x').val(groupby_attrs[1]).trigger('change');
+                    $('#attr-color').val(groupby_attrs[1]).trigger('change');
+                } else {
+                    $('#attr-col').val(groupby_attrs[0]).trigger('change');
+                    $('#attr-x').val(groupby_attrs[1]).trigger('change');
+                    // { #$('#attr-color').val(groupby_attrs[2]).trigger('change'); # }
+                    $('#attr-color').val(groupby_attrs[1]).trigger('change');
+                }
+                //CHARTCHARTCHART
+                
+                plot_query_result(response, false,
+                    attr_col = $('#attr-col').val(),
+                    attr_x = $('#attr-x').val(),
+                    attr_color = $('#attr-color').val(),
+                    value_rest = $('#value-rest').val()
+                );
+                **/
+
+
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                // { #console.log(jqXHR, jqXHR.responseText, textStatus, errorThrown); # }
+                alert(jqXHR.responseText);
+                window.location.replace('/flame');
+            },
+            complete: function () {
+                me.data('requestRunning', false);
+            },
+            contentType: false,
+            processData: false
+        });
+    });
+
+    /**
+    $(document).on('click', '.btn-mg', function(e) {
+        
+        let me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning')) {
+            return;
+        }
+        me.data('requestRunning', true);
+        //document.write("mg button was clicked")
+        $.ajax({
+            url: '/get_mmg',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                console.log(response)
+                //document.write("hello 2")
+                //plotMGTable('#view-mg-table',response)
+                printTE("#view-treatment-effect", response);
+                plotResTable('#view-res-table', response);
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+                me.data('requestRunning', false);
+            },
+            contentType: false,
+            processData: false
+        });
+    });
+    **/
+   
+
+
+
+    $(document).on('click', '.btn-del-var', function (e) {
+        e.preventDefault();
+        let formData = new FormData();
+        formData.append("table", $('#sql-from').val());
+
+        var features = [];
+        $('.feature_perm input[type="checkbox"]:checked').each(function() {
+            features.push($(this).val());
+        });
+        formData.append("drop", features)
+
+
+        // DROP FUNCTION HERE
+
+        $.ajax({
+            url: '/drop_var',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                console.log(response)
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+            },
+            contentType: false,
+            processData: false
+        });
+
+    });
+
+
+
+    $(document).on('click', '.btn-del-tbl', function (e) {
+        e.preventDefault();
+        let formData = new FormData();
+        //formData.append("table", $('#sql-from').val());
+
+        var features = [];
+        $('.tbl_drop input[type="checkbox"]:checked').each(function() {
+            features.push($(this).val());
+        });
+        formData.append("table_drop", features)
+
+
+        // DROP FUNCTION HERE
+
+        $.ajax({
+            url: '/drop_table',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                console.log(response)
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+            },
+            contentType: false,
+            processData: false
+        });
+
+    });
+
+
+    /** 
+    $(document).on('click', '.btn-recc', function (e) {
+        //let me = $(this);
+        e.preventDefault();
+        let formData = new FormData($('#query-form')[0]);
+        let explFormData = $('#question-form').serializeArray();
+        for (let i = 0; i < explFormData.length; i++) {
+            formData.append(explFormData[i].name, explFormData[i].value);
+        }
+        formData.append("x-recc", $('#x-recc').val());
+        formData.append("y-recc", $('#y-recc').val());
+        formData.append("numrecs", $('#rec-k-attr').val());
+        $.ajax({
+            url: '/recommend_drop',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+            success: function (response) {
+                console.log(response)
+                //document.write("hello 2")
+                printRecDrop('#view-recc-drops',response)
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+                me.data('requestRunning', false);
+            },
+            contentType: false,
+            processData: false
+        });
+        
+        if (me.data('requestRunning')) {
+            return;
+        }
+        //if ($('#uq-res-1').val() == null) {
+        //    alert('Please specify a question first.');
+        //    return;
+        //}
+        me.data('requestRunning', true);
+        // console.log({{table_numeric_attr[active_table]}})
+        // console.log({{table_datatype[active_table]}})
+        getReccDrops([], me);
+        
+    });
+    */
+
+    $(document).on('click', '.btn-expl', function (e) {
+        let me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning')) {
+            return;
+        }
+        me.data('requestRunning', true);
+        crossout_predicate = [];
+        requestExplanation([], me);
+
+
+
+    });
+
+    $(document).on('click', '.btn-rec', function (e) {
+        let me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning')) {
+            return;
+        }
+        if ($('#uq-res-1').val() == null) {
+            alert('Please specify a question first.');
+            return;
+        }
+        me.data('requestRunning', true);
+        // console.log({{table_numeric_attr[active_table]}})
+        // console.log({{table_datatype[active_table]}})
+        
+        
+        
+        recommendAttributes([], me);
+    });
+
+    $(document).on('click', '.btn-reset', function (e) {
+        $.ajax({
+            url: '/reset_recommender_weights',
+            type: 'POST',
+            dataType: "json",
+            success: function (response) {
+                let me = $(this);
+                e.preventDefault();
+                if (me.data('requestRunning')) {
+                    return;
+                }
+                if ($('#uq-res-1').val() == null) {
+                    alert('Please specify a question first.');
+                    return;
+                }
+                me.data('requestRunning', true);
+                recommendAttributes([], me);
+
+
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+            },
+            contentType: false,
+            processData: false
+        });
+
+
+
+    });
+
+    $(document).on('click', '.btn-vis-setting', function (e) {
+        e.preventDefault();
+
+        //HHHHHHHHHHH
+        console.log(response)
+        printTE("#view-treatment-effect", response)
+        plotResTable('#view-res-table', response);
+
+
+
+        plot_query_result(cur_res, false,
+            $('#attr-col').val(), $('#attr-x').val(), $('#attr-color').val(), $('#value-rest').val());
+    });
+
+    $(document).on('click', '.btn-view-table', function (e) {
+        e.preventDefault();
+        let formData = new FormData();
+        formData.append("table", $('#sql-from').val());
+
+        $.ajax({
+            url: '/get_raw_table',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                console.log(response)
+
+                printTableDimensions('#view-table-dimensions', response);
+
+                plotRawTable('#view-table-content', response);
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+            },
+            contentType: false,
+            processData: false
+        });
+
+    });
+
+    $('.vis-setting').on('change', function () {
+        if (!cur_res) return;
+        let rest_attr = groupby_attrs.filter(
+            item => item != $('#attr-col').val() && item != $('#attr-x').val() && item != $('#attr-color').val()
+        );
+        let rest_vals = {};
+        if (rest_attr.length > 0) {
+            for (let i = 0; i < cur_res['query_result'].length; i++) {
+                let v = {};
+                for (let j = 0; j < rest_attr.length; j++) {
+                    v[rest_attr[j]] = cur_res['query_result'][i][rest_attr[j]];
+                }
+                let v_str = JSON.stringify(v);
+                if (!(v_str in rest_vals)) {
+                    rest_vals[v_str] = true;
+                }
+            }
+            $('#value-rest').empty();
+            // { #populateOptions('#value-rest', ['*']); # }
+            populateOptions('#value-rest', Object.keys(rest_vals));
+            $('#value-rest').val(Object.keys(rest_vals)[0]);
+            $('#query-res-group-1').text("for group: " + Object.keys(rest_vals)[0]);
+        } else {
+            $('#value-rest').empty();
+            populateOptions('#value-rest', ['N/A']);
+            $('#value-rest').val('N/A');
+            $('#query-res-group-1').text("");
+        }
+    });
+
+
+    $(document).on('click', '.btn-range', function (e) {
+        if (range_exp == false) {
+            range_exp = true;
+        }
+        else {
+            range_exp = false;
+        }
+        let me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning')) {
+            return;
+        }
+        me.data('requestRunning', true);
+        crossout_predicate = [];
+        requestExplanation([], me);
+        // {#console.log(range_exp);#}
+    });
+
+    $(document).on('click', '.btn-undo', function (e) {
+        if (updown_history.length == 0) return;
+        e.preventDefault();
+        let me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning') || $('.btn-expl').data('requestRunning')) {
+            return;
+        }
+
+        me.data('requestRunning', true);
+        let last_ud = updown_history.pop();
+        let last_predicate = last_ud['vote_pred'];
+        let last_score = last_ud['last_score'];
+        if (updown_history.length == 0) {
+            crossout_predicate = []
+        }
+        else {
+            let udh = updown_history[updown_history.length - 1];
+            crossout_predicate = udh['crossout_pred'].slice();
+        }
+        sendFeedback(last_predicate.slice(0, -1), me, -last_score);
+        // { #console.log(crossout_predicate); # }
+        requestExplanation(crossout_predicate, $('.btn-undo'));
+    });
+
+    $("#sql-select").keyup(function () {
+        // { #alert("Handler for .change() called."); # }
+        $('#sql-group-by').val($(this).val());
+
+    });
+    $('.nav-tabs a').on('click', function (e) {
+        e.preventDefault();
+        $(".tab-pane").hide();
+        $($(this).attr("href")).show();
+    });
+
+    $('.btn-cancel-add-where').on('click', function (e) {
+        e.preventDefault();
+        $('#sql-add-where').val('');
+    });
+
+    $('.btn-table-upload').on('click', function (e) {
+        var form = $('#upload-new-table')[0];
+        var fd = new FormData(form);
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/upload_table',
+            data: fd,
+            processData: false,
+            contentType: false
+        })
+            .done(function (data) {
+                if (data.error) {
+                    $('#errorAlert').text(data.error).show();
+                    $('#successAlert').hide();
+                }
+                else {
+                    $('#successAlert').text(data.file).show();
+                    $('#errorAlert').hide();
+                    //kehan modify
+                    window.location.reload();
+                }
+
+            });
+
+
+    });
+
+</script>
+
+</html>
