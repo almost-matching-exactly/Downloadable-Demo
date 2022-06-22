@@ -618,9 +618,6 @@ def get_mmg():
     form_data = request.form
 
     entry_id = int(form_data['entry-id'])
-    print("entry id = " + str(entry_id))
-
-    print(type(flame_model))
 
     mmg = dame_flame.utils.post_processing.MG(matching_object=flame_model, unit_ids=entry_id)
 
@@ -758,7 +755,7 @@ def drop_table():
         return jsonify(status_code=200)
     except Exception as e:
         app.logger.error(traceback.format_exc())
-        flash("Something wrong has happened, now redirecting...\nIf it continues, please contact course staff.")
+        flash("Something wrong has happened, now redirecting...")
         return app.make_response((str(e), 500))
 
 
