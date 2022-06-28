@@ -225,7 +225,7 @@
                     </h6>
                 
                     <div class="feature_perm">
-                        <li class="form-check nav-item">Select variables you wish to<br /> permanently drop from <br />matching. (Such as <br> post-treatment variables) <br/> Do not drop treatment or <br /> outcome variables. 
+                        <li class="form-check nav-item">Select variables you wish to<br /> permanently drop from <br />the dataset. <br> (eg. post-treatment variables) <br/> Do not drop treatment or <br /> outcome variables. 
                         </li>
                         {% for attr in table_datatype[active_table] %}
                         {#                        <li class="nav-item px-3">#}
@@ -245,17 +245,6 @@
                         {% endfor %}
                     </div>
                     <button type="button" class="btn btn-del-var" style="background-color:#97cfc3" onClick="window.location.reload();">Drop</button>
-
-
-
-                    <br>
-                    <br>
-                    <a href="https://archive.ics.uci.edu/ml/datasets/adult" target = "_blank"> &nbsp; About the adult dataset</a>
-
-
-
-
-
 
 
 
@@ -345,9 +334,14 @@
                         </li>
                         {% endfor %}
                     </div>
-                    <button type="button" class="btn btn-del-tbl" style="background-color:#97cfc3" onClick="window.location.reload();">Delete</button>
+                    <span button type="button" class="btn btn-drop-table " data-toggle="modal" id="drop_button" style="background-color:#97cfc3"
+                        data-target="#drop-table-modal">Delete</span>
 
 
+
+                    <br>
+                    <br>
+                    <a href="https://archive.ics.uci.edu/ml/datasets/adult" target = "_blank"> &nbsp; About the adult dataset</a>
 
                         
 
@@ -1208,7 +1202,7 @@
                 <div class="modal-body">
                     <div id="upload">
                         <form id="upload-new-table">
-                            <input type="file" name="file" accept=".csv" id="upload-csv-file">
+                            <input type="file" name="file" accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" id="upload-csv-file">
                         </form>
                         <br>
                         <p id="successAlert" style="display:none;">Success!</p>
@@ -1222,6 +1216,42 @@
             </div>
         </div>
     </div>
+
+
+
+
+
+
+
+    <!--DELETE POPUP TEST 1-->
+
+
+    <div class="modal fade" id="drop-table-modal" tabindex="-1" role="dialog" aria-labelledby="addTableModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Drop Datasets</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to permanently delete the selected datasets? This action cannot be undone. </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-del-tbl" style="background-color:#97cfc3" onClick="window.location.reload();">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
 
     <div class="modal fade" id="addWhereModal" tabindex="-1" role="dialog" aria-labelledby="addWhereModal"
         aria-hidden="true">
@@ -1249,6 +1279,15 @@
             </div>
         </div>
     </div>
+
+
+
+
+
+
+
+
+
 
     <div class="modal fade" id="vis-setting-modal" tabindex="-1" role="dialog" aria-labelledby="visSettingModalLabel"
         aria-hidden="true">
