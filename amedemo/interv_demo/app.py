@@ -478,9 +478,13 @@ def run_query():
     myoutcome = []
 
 
-    #if (form_data['download-dest'] != ""):
-    #    download_path = form_data['download-dest'] + 'result.csv'
-    #    myres.to_csv(download_path, index=False)
+    if (form_data['download-name'] != ""):
+        download_path = 'results/' + form_data['download-name'] + '.csv'
+    else: 
+        download_path = 'results/' + form_data['sql-from'] + '_result.csv'
+    myres.to_csv(download_path, index=False)
+
+
 
     too_large = 0
     if (len(myres.index)>=5000):
@@ -1744,10 +1748,28 @@ def upload_table():
     #     with open(file) as csvfile:
     # ut_reader = csv.reader(csvfile, delimiter=',')
     table_name = file.filename.split('.')[0]
+    file_type = file.filename.split('.')[1]
     engine = db.get_engine(bind='raw')
 
+
+    if file_type=='csv': 
+        df = pd.read_csv(file, skipinitialspace=True)
+    elif file_type=='xlsx' or file_type=='xls': 
+        df = pd.read_excel(file)
+    #except: 
+    #    raise Exception("please upload .csv file or excel file")
+
+
+
     # kehan done
-    df = pd.read_csv(file, skipinitialspace=True)
+    #df = pd.read_csv(file, skipinitialspace=True)
+
+
+
+
+
+
+
     df.columns = df.columns.str.replace('-', '_')
     df.columns = df.columns.str.replace(' ', '')
     df.columns = map(str.lower, df.columns)
