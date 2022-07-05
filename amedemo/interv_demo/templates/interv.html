@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>AME Demo</title>
+    <title>AME: Almost Exact Matching for Observational Causal Inference</title>
     <script src={{ url_for('static', filename='js/jquery-3.3.1.min.js') }}></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -47,7 +47,7 @@
 <body onLoad="$('#loginSuccessfulModal').modal('show');">
     <nav class="navbar navbar-dark fixed-top bg-dark  p-0 shadow navbar-expand-lg">
         <div class="navbar-collapse collapse">
-            <a class="navbar-brand col-sm-3 col-md-2 mr-auto" href="#">AME Demo</a>
+            <a class="navbar-brand col-sm-3 col-md-2 mr-auto" href="#">AME: Almost Exact Matching for Observational Causal Inference</a>
             <!-- <ul class="nav navbar-right justify-content-center px-2">
                 <li class="navbar-nav nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href='#' data-toggle="dropdown" aria-haspopup="true"
@@ -311,7 +311,7 @@
                     
                     <h6
                         class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>Delete Datasets: </span>
+                        <span>Remove Dataset from AME: </span>
                         <a class="d-flex align-items-center text-muted" href="#">
                             <span data-feather="plus-circle"></span>
                         </a>
@@ -523,14 +523,23 @@
 
 
 
-                        <!--
+                        
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Download Result Destination: </span>
+                                <span class="input-group-text">Download As: </span>
                             </div>
-                            <input type="text" name="download-dest" class="form-control" id="download-dest">
+                            <input type="text" name="download-name" class="form-control" id="download-name">
                         </div>
-                        -->
+                        <a class="custom-tooltip-bar"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            data-trigger="hover"
+                            title="Matched result will be downloaded as a .csv file to the 'results' folder under this name.">
+                                <svg height="16" width="16" fill="#6C757D">
+                                    <use href="#tooltip-icon"></use>
+                                </svg>
+                        </a>
+                        
 
 
 
@@ -1257,13 +1266,13 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Drop Datasets</h5>
+                    <h5 class="modal-title">Remove Datasets from AME</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to permanently delete the selected datasets? This action cannot be undone. </p>
+                    <p>Are you sure you want to permanently remove the selected datasets from AME? This action cannot be undone. </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
