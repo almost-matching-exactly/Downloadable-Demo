@@ -337,7 +337,7 @@
                         {% endfor %}
                     </div>
                     <span button type="button" class="btn btn-drop-table " data-toggle="modal" id="drop_button" style="background-color:#97cfc3"
-                        data-target="#drop-table-modal">Delete</span>
+                        data-target="#drop-table-modal">Remove</span>
 
 
 
@@ -523,6 +523,8 @@
 
 
 
+
+                            <!--
                         
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -540,7 +542,7 @@
                                 </svg>
                         </a>
                         
-
+                    -->
 
 
 
@@ -976,12 +978,21 @@
 
                     <div id="matched-result" class="tabcontent" style="display:block">
 
+                        <div class="input-group" id = "download-group" hidden="true">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Download Results as: </span>
+                            </div>
+                            <input type="text" name="download-name" class="form-control" id="download-name">
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-download mt-1 mb-1" id="btn-download"
+                        style="clear:left" hidden="true">Download</button>
+
+
                         <div class="row">
 
                             <!--logging bullshit???-->
 
-                            
-                      
                         
 
                             <div class="col-md-12">
@@ -1048,6 +1059,24 @@
                         style="clear:left">See Matched Group</button>
 
 
+                        <button type="button" class="btn btn-primary btn-mg-download mt-1 mb-1" id="btn-mg-download" disabled="true"
+                        style="clear:left" hidden="true">Download</button>
+
+                        <a class="custom-tooltip-bar" id="mg-warning" hidden = "true"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            data-trigger="hover"
+                            title="If this button is greyed-out, please first make sure you downloaded the main matched result from the 'General Matched Results' 
+                            tab already, then click 'See Matched Group' again. If the button became greyed-out after you downloaded a matched group, your download 
+                            was successful; please input another unit's index to access another matched group.">
+                                <svg height="16" width="16" fill="#6C757D">
+                                    <use href="#tooltip-icon"></use>
+                                </svg>
+                        </a>
+
+
+
+
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="card test-result border-top">
@@ -1056,6 +1085,8 @@
                                         <table id="view-cate-value" class="table table-sm table-info">
                                         </table>
                                     </div>
+
+                                </pre id="mg-too-large"> <pre>
                                     
                                     <div class="modal-body table-responsive table-hover">
                                         <table id="view-mg-table" class="table table-sm table-info">
@@ -1074,13 +1105,14 @@
                     <div id="query-result" class="tabcontent">
 
                         <div>
+
+
                             <!-- <canvas id="myChart"></canvas> -->
                             <div id="covarchartcontainer" style = "width: 100%; height: 500px"></div>
                             <div id="mychartcontainer" style="width: 100%; height: 500px"></div>
 
 
                         </div> 
-                        <br><br>
 
                     </div>
 
@@ -1276,7 +1308,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-del-tbl" style="background-color:#97cfc3" onClick="window.location.reload();">Delete</button>
+                    <button type="button" class="btn btn-del-tbl" style="background-color:#97cfc3" onClick="location.href = 'http://0.0.0.0:5001/';">Remove</button>
                 </div>
             </div>
         </div>
@@ -1403,6 +1435,9 @@
     let range_exp = false;
     let selected_range = {}
     let checked_attrs = []
+
+
+    let downloaded_main = false; 
 
 
     $(function () {
@@ -2895,6 +2930,12 @@
 
     }
 
+
+
+
+
+
+
     function getMMG(predicate_blacklist = null, me){
         let formData = new FormData($('#query-form')[0]);
         let explFormData = $('#question-form').serializeArray();
@@ -2918,7 +2959,17 @@
 
                 //document.write("hello 2")
 
+                document.getElementById("btn-mg-download").hidden = false
+                document.getElementById("mg-warning").hidden = false
+
+
                 printCATE('#view-cate-value',response)
+
+                if (response['mg_too_large']==1){
+                    //printTooLarge("#view-too-large", response);
+                    document.getElementById("mg-too-large").innerHTML = "&nbsp; Group too large; printing first 1000 matches" + "<br />";
+                }
+
                 plotMGTable('#view-mg-table',response)
 
             },
@@ -2946,10 +2997,123 @@
         //    return;
         //}
         me.data('requestRunning', true);
+
+        if (downloaded_main){
+            $("#btn-mg-download").attr("disabled", false);
+        } 
+
         // console.log({{table_numeric_attr[active_table]}})
         // console.log({{table_datatype[active_table]}})
         getMMG([], me);
     });
+
+
+
+
+
+
+    
+    function download_result(download_type, predicate_blacklist = null, me){
+        let formData = new FormData($('#query-form')[0]);
+        let explFormData = $('#question-form').serializeArray();
+        for (let i = 0; i < explFormData.length; i++) {
+            formData.append(explFormData[i].name, explFormData[i].value);
+        }
+
+        if (download_type=='general'){
+            formData.append("download-name", $('#download-name').val())
+
+            downloaded_main = true; 
+        } else {
+            formData.append("download-name", "")
+        }
+
+        formData.append("download-type", download_type)
+
+
+
+        $.ajax({
+            url: '/download_result',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+            success: function (response) {
+
+                console.log(response)
+
+                //document.write("hello 2")
+
+                //printCATE('#view-cate-value',response)
+
+                //if (response['mg_too_large']==1){
+                    //printTooLarge("#view-too-large", response);
+                //    document.getElementById("mg-too-large").innerHTML = "&nbsp; Group too large; printing first 1000 matches" + "<br />";
+                //}
+
+
+
+                //plotMGTable('#view-mg-table',response)
+
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+                me.data('requestRunning', false);
+            },
+            contentType: false,
+            processData: false
+        });
+
+    }
+
+    $(document).on('click', '.btn-download', function (e) {
+        let me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning')) {
+            return;
+        }
+        //if ($('#uq-res-1').val() == null) {
+        //    alert('Please specify a question first.');
+        //    return;
+        //}
+        me.data('requestRunning', true);
+
+        
+
+        // console.log({{table_numeric_attr[active_table]}})
+        // console.log({{table_datatype[active_table]}})
+        download_result('general', [], me);
+    });
+
+
+    $(document).on('click', '.btn-mg-download', function (e) {
+        let me = $(this);
+        e.preventDefault();
+        if (me.data('requestRunning')) {
+            return;
+        }
+        //if ($('#uq-res-1').val() == null) {
+        //    alert('Please specify a question first.');
+        //    return;
+        //}
+        me.data('requestRunning', true);
+        // console.log({{table_numeric_attr[active_table]}})
+        // console.log({{table_datatype[active_table]}})
+
+        $("#btn-mg-download").attr("disabled", true);
+
+        download_result('mg', [], me);
+    });
+
+
+    
+
+
+
+
 
 
 
@@ -3028,6 +3192,10 @@
 
 
 
+
+
+
+
         $.ajax({
             url: '/run_query',
             type: 'POST',
@@ -3042,7 +3210,16 @@
                 //HHHHHHHHHHH
                 ///four 4
 
+
+                //download button appears here???
+
+                downloaded_main = false; 
+
+
                 document.getElementById("loading").innerHTML = "&nbsp; Done";
+
+                document.getElementById("download-group").hidden = false
+                document.getElementById("btn-download").hidden = false
 
 
                 console.log(response);
