@@ -2,13 +2,17 @@
 
 from operator import truediv
 from re import M
-from flask import Flask, current_app, abort
+from tkinter.messagebox import NO
+
+#loginstuff
+from flask import Flask, current_app, abort, session
+
 from flask import Markup
 from flask import render_template, request, jsonify, redirect, url_for, flash
 import sqlalchemy.pool as pool
 from flask_sqlalchemy import SQLAlchemy
 import datetime
-import logging
+#import logging
 import traceback
 import os
 import csv
@@ -24,11 +28,18 @@ from interv_backend import QueryRunner, IntervFinder, AttributeRecommender
 import config as cf
 
 import numpy as np
-from numpy import mat
-import psycopg2
-from psycopg2.extensions import register_adapter, AsIs
-psycopg2.extensions.register_adapter(np.int64, psycopg2._psycopg.AsIs)
+from numpy import int0, int32, mat
+#import psycopg2
+#from psycopg2.extensions import register_adapter, AsIs
+#psycopg2.extensions.register_adapter(np.int64, psycopg2._psycopg.AsIs)
 from pandas.core.frame import DataFrame
+
+#loginstuff
+from flask_session import Session
+
+
+#logging stuff
+from flask import Response
 
 
 db_raw = None
@@ -41,6 +52,16 @@ table_datatype = None
 active_table = None
 table_numeric_attr = None
 flame_model = None
+myname = None
+treat_var = None
+out_var = None
+logoutput = None
+result_dataframe = None
+current_entry_id = None
+current_mmg = None
+curr_path = None
+ate = None
+att = None
 
 
 app = Flask(__name__, static_folder='static')
@@ -49,6 +70,21 @@ app.config.from_pyfile('../config.py')
 #gunicorn_logger = logging.getLogger('gunicorn.error')
 #app.logger.handlers = gunicorn_logger.handlers
 # app.logger.setLevel(gunicorn_logger.level)
+
+
+# login bullshit 1
+#app.config["SESSION_PERMANENT"] = False
+#app.config["SESSION_TYPE"] = "filesystem"
+
+#Session(app)
+
+
+
+
+#test123
+
+
+
 db = SQLAlchemy(app)
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -101,6 +137,12 @@ def interv(active_table='adult'):
     # init_db()
     # app.run()
 
+
+    #session["name"] = None
+
+
+
+
     # get available tables
     try:
         globals()['db_raw'] = db.get_engine(app, bind='new')
@@ -108,6 +150,9 @@ def interv(active_table='adult'):
         globals()['db_raw'] = db.get_engine(app, bind='raw')
     globals()['attr_rmd'] = AttributeRecommender.AttributeRecommender(db_raw)
     cursor = db_raw
+
+
+
 
     # kehan modified for select all db names
     db_query = 'SELECT datname FROM pg_database;'
@@ -155,7 +200,21 @@ def interv(active_table='adult'):
             '''.format(tbl)).fetchall()
 
 
+
     globals()['active_table'] = active_table
+
+
+            #login bullshit 2
+    #if not session.get("name"):
+    #    print("not session")
+
+    #    return redirect("/login")
+
+
+
+
+    print("rendering interv html")
+
     return render_template(
         'interv.html',
         ra_result=None,
@@ -169,6 +228,128 @@ def interv(active_table='adult'):
         table_numeric_attr=globals()['table_numeric_attr']
 
     )
+
+
+#loginstuff
+@app.route("/login", methods=["POST", "GET"])
+def login():
+    print("login function reached")
+    if request.method == "POST":
+        print("request method is post")
+
+
+        #session["name"] = request.form.get("name")
+        #globals()['myname'] = request.form.get('name')
+        #session["name"] = globals()['myname']
+
+
+        return redirect("/")
+    print("request method is get")
+    return render_template(
+        "login.html", 
+        ra_result=None,
+        cur_user=request.environ.get('REMOTE_USER'),
+        available_dbs=available_dbs,
+        active_table=active_table,
+        available_tables=globals()['available_tables'],
+        num_table=6,
+        table_schemas=table_schemas,
+        table_datatype=table_datatype,
+        table_numeric_attr=globals()['table_numeric_attr']
+        )
+
+
+
+
+#logging stuff???
+# configure logger
+#logger.add("app/static/job.log", format="{time} - {message}")
+
+# adjusted flask_logger
+def flask_logger():
+    """creates logging information"""
+    with open("app/static/job.log") as log_info:
+        #for i in range(25):
+            #logger.info(f"iteration #{i}")
+        data = log_info.read()
+        yield data.encode()
+            #sleep(1)
+        # Create empty job.log, old logging will be deleted
+        #open("app/static/job.log", 'w').close()
+
+        #log_info.seek(0,2) # Go to the end of the file
+        #while True:
+        #    line = log_info.readline()
+        #    if not line:
+        #        time.sleep(0.01) # Sleep briefly
+        #        continue
+        #    yield line.encode()
+
+
+@app.route("/log_stream", methods=["GET"])
+def log_stream():
+    """returns logging information"""    
+    return Response(flask_logger(), mimetype="text/plain", content_type="text/event-stream")
+
+
+
+
+
+
+def alg_predict(df, treat_var, out_var, alg, alpha, repeats, early_stop_iterations, stop_unmatched_c, stop_unmatched_t, early_stop_un_c_frac, 
+    early_stop_un_t_frac, early_stop_pe, early_stop_pe_frac, missing_holdout_replace, missing_data_replace, missing_holdout_imputations, missing_data_imputations):
+
+
+        
+    #if os.path.exists("app/static/job.log"):
+    #    os.remove("app/static/job.log")
+
+    #log = open("app/static/job.log", "w")
+
+    #with open("app/static/job.log", "w") as log: 
+        #sys.stdout = log
+
+    old_stdout = sys.stdout
+    new_stdout = io.StringIO()
+    sys.stdout = new_stdout
+
+
+    #if alg=="dame":
+    #    model = dame_flame.matching.DAME(alpha=alpha, verbose=3, repeats=repeats, early_stop_iterations=early_stop_iterations,
+    #        stop_unmatched_c=stop_unmatched_c, stop_unmatched_t=stop_unmatched_t, early_stop_un_c_frac=early_stop_un_c_frac, early_stop_un_t_frac=early_stop_un_t_frac,
+    #        early_stop_pe=early_stop_pe, early_stop_pe_frac=early_stop_pe_frac, want_pe=True, want_bf=True, missing_holdout_replace=missing_holdout_replace, 
+    #        missing_data_replace=missing_data_replace, missing_holdout_imputations=missing_holdout_imputations, 
+    #        missing_data_imputations=missing_data_imputations)
+    #else:
+    model = dame_flame.matching.FLAME(alpha=alpha, verbose=3, repeats=repeats, early_stop_iterations=early_stop_iterations,
+        stop_unmatched_c=stop_unmatched_c, stop_unmatched_t=stop_unmatched_t, early_stop_un_c_frac=early_stop_un_c_frac, early_stop_un_t_frac=early_stop_un_t_frac,
+        early_stop_pe=early_stop_pe, early_stop_pe_frac=early_stop_pe_frac, want_pe=True, want_bf=True, missing_holdout_replace=missing_holdout_replace, 
+        missing_data_replace=missing_data_replace, missing_holdout_imputations=missing_holdout_imputations, 
+        missing_data_imputations=missing_data_imputations)
+
+    model.fit(df, treatment_column_name=treat_var, outcome_column_name=out_var)
+    myres = model.predict(df)
+
+    logoutput = new_stdout.getvalue()
+    
+    globals()['logoutput'] = logoutput
+
+
+    #sys.stdout = sys.__stdout__
+    #print('test two')
+
+    #sys.stdout = old_stdout
+
+
+    return model, myres
+
+
+
+
+
+
+
+
 
 
 @app.route('/run_query', methods=['POST'])
@@ -199,13 +380,56 @@ def run_query():
     treat_var = request.form.get('xvar')
     out_var = request.form.get('y-var')
 
+    globals()['treat_var'] = treat_var
+    globals()['out_var'] = out_var
+
+    #session['treat_var'] = treat_var
+    #session['out_var'] = out_var
+
+
+
+
+
+    #error bullshit: check if user selected same var as treat and outcome 
+    if treat_var == out_var: 
+        flash("do not select same variable as treatment and outcome")
+        return app.make_response(("do not select same variable as treatment and outcome", 500))
+
+
     if form_data['exclude'] != "":
         exclude_vars = form_data['exclude'].split(',')
         df = df.drop(columns=exclude_vars)
 
+
+
+
+    #error bullshit: check if user dropped treatment and/or outcome: 
+    if treat_var not in df or out_var not in df:
+        flash("selected treatment and/or outcome variable not in data. check that selected treatment and/or outcome variables were not excluded.")
+        return app.make_response(("selected treatment and/or outcome variable not in data. check that selected treatment and/or outcome variables were not excluded.", 500))
+
+    elif df.loc[:, ~df.columns.isin([treat_var, out_var])].empty:
+        flash("data other than treatment and outcome variables missing. do not drop all non-treatment and non-outcome variables")
+        return app.make_response(("data other than treatment and outcome variables missing. do not drop all non-treatment and non-outcome variables", 500))
+
+    
+
     treatment_condition = form_data["treat_condition"]
+
+    #error bullshit: treatment condition syntax
+    if treatment_condition !="" and treatment_condition[0] != 'x':
+        flash("please input treatment condition with syntax x==[some python-compliant boolean expression].")
+        return app.make_response(("please input treatment condition with syntax x==[some python-compliant boolean expression].", 500))
+
     if treatment_condition != "":
+        #treatment_condition = "x"+treatment_condition
         df[treat_var] = df[treat_var].apply(lambda x: 1 if eval(treatment_condition) else 0)
+        treatment_condition = treatment_condition[1:]
+
+    binary_cols = df.columns[df.isin([0,1]).all()].tolist()
+    if treat_var not in binary_cols:
+        flash("treatment variable must be binary")
+        return app.make_response(("treatment variable must be binary", 500))
 
     
     bool_params = [form_data['repeats'], form_data['sumc'], form_data['sumt'], form_data['espe']]
@@ -214,38 +438,54 @@ def run_query():
             bool_params[j] = False
         else:
             bool_params[j] = True
+    #adaptive_weights=form_data['aweights'],
     
     alg = form_data['algorithm']
-    if alg=="dame":
-        model = dame_flame.matching.DAME(adaptive_weights=form_data['aweights'], repeats=bool_params[0], early_stop_iterations=int(form_data['esi']),
-            stop_unmatched_c=bool_params[1], stop_unmatched_t=bool_params[2], early_stop_un_c_frac=float(form_data['esucf']), early_stop_un_t_frac=float(form_data['esutf']),
-            early_stop_pe=bool_params[3], early_stop_pe_frac=float(form_data['espf']), missing_holdout_replace=int(form_data['missing-holdout-replace']), 
-            missing_data_replace=int(form_data['missing-data-replace']), missing_holdout_imputations=int(form_data['missing-holdout-imputations']), 
-            missing_data_imputations=int(form_data['missing-data-imputations']))
-    else:
-        model = dame_flame.matching.FLAME(adaptive_weights=form_data['aweights'], repeats=bool_params[0], early_stop_iterations=int(form_data['esi']),
-            stop_unmatched_c=bool_params[1], stop_unmatched_t=bool_params[2], early_stop_un_c_frac=float(form_data['esucf']), early_stop_un_t_frac=float(form_data['esutf']),
-            early_stop_pe=bool_params[3], early_stop_pe_frac=float(form_data['espf']), missing_holdout_replace=int(form_data['missing-holdout-replace']), 
-            missing_data_replace=int(form_data['missing-data-replace']), missing_holdout_imputations=int(form_data['missing-holdout-imputations']), 
-            missing_data_imputations=int(form_data['missing-data-imputations']))
 
-    model.fit(df, treatment_column_name=treat_var, outcome_column_name=out_var)
-    myres = model.predict(df)
+
+
+
+    #if alg=="dame":
+    #    model = dame_flame.matching.DAME(alpha=float(form_data['alpha']), verbose=3, repeats=bool_params[0], early_stop_iterations=int(form_data['esi']),
+    #        stop_unmatched_c=bool_params[1], stop_unmatched_t=bool_params[2], early_stop_un_c_frac=float(form_data['esucf']), early_stop_un_t_frac=float(form_data['esutf']),
+    #        early_stop_pe=bool_params[3], early_stop_pe_frac=float(form_data['espf']), missing_holdout_replace=int(form_data['missing-holdout-replace']), 
+    #        missing_data_replace=int(form_data['missing-data-replace']), missing_holdout_imputations=int(form_data['missing-holdout-imputations']), 
+    #        missing_data_imputations=int(form_data['missing-data-imputations']))
+    #else:
+    #    model = dame_flame.matching.FLAME(alpha=float(form_data['alpha']), repeats=bool_params[0], verbose=3, early_stop_iterations=int(form_data['esi']),
+    #        stop_unmatched_c=bool_params[1], stop_unmatched_t=bool_params[2], early_stop_un_c_frac=float(form_data['esucf']), early_stop_un_t_frac=float(form_data['esutf']),
+    #        early_stop_pe=bool_params[3], early_stop_pe_frac=float(form_data['espf']), missing_holdout_replace=int(form_data['missing-holdout-replace']), 
+    #        missing_data_replace=int(form_data['missing-data-replace']), missing_holdout_imputations=int(form_data['missing-holdout-imputations']), 
+    #        missing_data_imputations=int(form_data['missing-data-imputations']))
+
+    #model.fit(df, treatment_column_name=treat_var, outcome_column_name=out_var)
+    #myres = model.predict(df)
+
+
+
+    model, myres = alg_predict(df=df, treat_var=treat_var, out_var=out_var, alg=alg, alpha=float(form_data['alpha']), repeats=bool_params[0], 
+        early_stop_iterations=int(form_data['esi']), stop_unmatched_c=bool_params[1], stop_unmatched_t=bool_params[2], early_stop_un_c_frac=float(form_data['esucf']), 
+        early_stop_un_t_frac=float(form_data['esutf']), early_stop_pe=bool_params[3], early_stop_pe_frac=float(form_data['espf']), 
+        missing_holdout_replace=int(form_data['missing-holdout-replace']), missing_data_replace=int(form_data['missing-data-replace']), 
+        missing_holdout_imputations=int(form_data['missing-holdout-imputations']), missing_data_imputations=int(form_data['missing-data-imputations']))
+
+    
+    globals()['flame_model']=model
+
 
 
     result_flame = myres.replace(to_replace='*', value=np.nan)
 
 
 
-    globals()['flame_model']=model
+    #globals()['flame_model']=model
+    #session['name'] = model
 
     mytreated = []
     myoutcome = []
 
 
-    if (form_data['download-dest'] != ""):
-        download_path = form_data['download-dest'] + 'result.csv'
-        myres.to_csv(download_path, index=False)
+
 
     too_large = 0
     if (len(myres.index)>=5000):
@@ -258,8 +498,13 @@ def run_query():
         mytreated.append(df.iloc[r][treat_var])
         myoutcome.append(df.iloc[r][out_var])
 
-    myres[treat_var] = mytreated
-    myres[out_var] = myoutcome
+    myres[treat_var + " (treatment)"] = mytreated
+    myres[out_var + " (outcome)"] = myoutcome
+
+    myres = myres[[treat_var + " (treatment)", out_var + " (outcome)"] + [c for c in myres if c not in [treat_var + " (treatment)", out_var + " (outcome)"]]]
+
+    globals()['result_dataframe'] = myres
+
 
 
 
@@ -269,7 +514,6 @@ def run_query():
     my_attributes.insert(0,'index')
 
     #final_result = [dict(row) for row in test_result]
-
     final_res = []
     for row in test_res:
         count = 0
@@ -283,8 +527,17 @@ def run_query():
 
 
 
-    ate = str(dame_flame.utils.post_processing.ATE(matching_object=model))
-    att = str(dame_flame.utils.post_processing.ATT(matching_object=model))
+    if myres.empty:
+        ate = "none"
+        att = "none"
+        no_matches = 1
+    else:
+        ate = str(dame_flame.utils.post_processing.ATE(matching_object=model))
+        att = str(dame_flame.utils.post_processing.ATT(matching_object=model))
+        no_matches = 0
+
+    globals()['ate'] = ate
+    globals()['att'] = att
 
 
 
@@ -305,7 +558,6 @@ def run_query():
     
     covar_matches = result_flame.count(axis=0)
     covar_matches.to_frame()
-    print(covar_matches)
 
     rnm = covar_matches.index
     rownames = list(rnm)
@@ -313,9 +565,6 @@ def run_query():
     covar_count = covar_matches.values.tolist()
 
     
-
-
-
 
     #sql_query = '''SELECT {}, {} FROM {}{} GROUP BY {} ;'''.format(
     #    form_data['sql-select'],
@@ -349,9 +598,14 @@ def run_query():
                            #query_result=qr_result,
                            #groupby_attributes=groupby_attributes,
                            #aggregation=form_data['sql-aggregate'],
+                           
+                           logoutput=globals()['logoutput'],
+                           treat_var=treat_var + " " + treatment_condition,
+                           out_var=out_var,
                            ate=ate,
                            att=att,
                            too_large=too_large,
+                           no_matches=no_matches,
                            result=final_res,
                            attributes=my_attributes,
                            group_size_treated=group_size_treated,
@@ -365,6 +619,108 @@ def run_query():
 
 
 
+@app.route('/download_result', methods=['POST'])
+def download_result(): 
+    form_data = request.form
+
+    myres = globals()['result_dataframe']
+    mmg = globals()['current_mmg']
+    current_id = str(globals()['current_entry_id'])
+
+    curr_match = form_data['download-name']
+    if curr_match=="":
+        curr_match = form_data['sql-from'] + '_result'
+
+
+    path = 'results/' + curr_match
+
+
+    if (form_data['download-type']=='general'):
+
+        if not myres.empty: 
+
+            if os.path.exists(path):
+                i = 1
+                mypath = path + "(" + str(i) + ")"
+                while os.path.exists(mypath):
+                    i += 1
+                    mypath = path + "(" + str(i) + ")"
+                
+                path = mypath
+                
+
+
+                #os.mkdir(path)
+            globals()['curr_path'] = path
+            os.mkdir(path)
+
+            download_path = path + '/result.csv'
+            myres.to_csv(download_path, index=True)
+
+
+            missing_holdout_replace = ["assume no missing holdout data", "", "exclude units with missing values", "MICE"]
+            missing_data_replace = ["assume no missing data", "do not match on units with missing values", "prevent all missing values from matching", "MICE"]
+
+            f = open(path + '/parameters.txt', 'w')
+            f.write("treatment variable = " + form_data['xvar'])
+            f.write("\noutcome variable = " + form_data['y-var'])
+            if form_data['treat_condition'] != "": 
+                f.write("\ntreatment condition: treatment variable = 1 if " + form_data['xvar'] + form_data['treat_condition'][1:])
+            f.write("\n")
+            f.write("\nAdvanced settings: ")
+            f.write("\nAlpha = " + str(form_data['alpha']))
+            f.write("\nRepeats = " + form_data['repeats'])
+            f.write("\nEarly stop iterations = " + form_data['esi'])
+            f.write("\nStop unmatched control = " + form_data['sumc'])
+            f.write("\nStop unmatched treatment = " + form_data['sumt'])
+            f.write("\nEarly stop fraction for control units = " + form_data['esucf'])
+            f.write("\nEarly stop fraction for treatment units = " + form_data['esutf'])
+            f.write("\nEarly stop for PE = " + form_data['espe'])
+            f.write("\nEarly stop fraction for PE = " + form_data['espf'])
+            f.write("\nMissing holdout replace: " + missing_holdout_replace[int(form_data['missing-holdout-replace'])])
+            if form_data['missing-holdout-replace']==3: 
+                f.write("\nMissing holdout imputations = " + form_data['missing-holdout-imputations'])
+            f.write("\nMissing data replace: " + missing_data_replace[int(form_data['missing-data-replace'])])
+            if form_data['missing-data-replace']==3: 
+                f.write("\nMissing data imputations = " + form_data['missing-data-imputations'])
+
+            f.close()
+
+            fi = open(path + '/ate.txt', 'w')
+            fi.write("Average Treatment Effect = " + str(globals()['ate']))
+            fi.write("\nAverage Treatment Effect on the Treated = " + str(globals()['att']))
+            fi.close()
+
+    
+    else: 
+
+        path = globals()['curr_path']
+
+        mmg_path = path + '/matched_groups'
+
+        if not os.path.exists(mmg_path):
+            #mmg_directory = '/matched_groups'
+            #mmg_path = os.path.join(path, mmg_directory)
+            os.mkdir(mmg_path)
+
+        if not mmg.empty: 
+            download_path = mmg_path + '/unit' + current_id + "_mmg.csv"
+            mmg.to_csv(download_path, index=True)
+
+    
+
+
+
+    try:
+        return jsonify(status_code=200)
+    except Exception as e:
+        app.logger.error(traceback.format_exc())
+        flash("Something wrong has happened, now redirecting...\nIf it continues, please contact course staff.")
+        return app.make_response((str(e), 500))
+
+
+
+
 
 
 @app.route('/get_mmg', methods=['POST'])
@@ -374,12 +730,14 @@ def get_mmg():
     form_data = request.form
 
     entry_id = int(form_data['entry-id'])
-    print("entry id = " + str(entry_id))
+    globals()['current_entry_id'] = entry_id
 
-    print(type(flame_model))
 
     mmg = dame_flame.utils.post_processing.MG(matching_object=flame_model, unit_ids=entry_id)
 
+
+
+    mg_too_large = 0
     no_match = 0
     final_mg = []
     my_attributes = []
@@ -387,9 +745,33 @@ def get_mmg():
 
     if not isinstance(mmg, DataFrame):
         no_match = 1
+        globals()['current_mmg'] = pd.DataFrame()
     else: 
 
+        if (len(mmg.index)>=5000):
+            mmg = mmg.head(1000)
+            mg_too_large = 1
+
+
+        #cate = dame_flame.utils.post_processing.CATE(matching_object=flame_model, unit_ids=entry_id)
+
+        no_match_cols = []
+
+        for col in mmg.columns:
+            if mmg.iloc[0][col] == "*":
+                no_match_cols.append(col)
+
+        mmg = mmg[[c for c in mmg if c not in no_match_cols] + no_match_cols]
+        mmg = mmg[[globals()['treat_var'], globals()['out_var']] + [c for c in mmg if c not in [globals()['treat_var'], globals()['out_var']]]]
+
+        globals()['current_mmg'] = mmg
+
+
+
+        #loginstuff
+        #cate = dame_flame.utils.post_processing.CATE(matching_object=session["name"], unit_ids=entry_id)
         cate = dame_flame.utils.post_processing.CATE(matching_object=flame_model, unit_ids=entry_id)
+
 
         hold_mg = list(mmg.to_records(index=True))
 
@@ -407,9 +789,13 @@ def get_mmg():
                 count +=1
             final_mg.append(rowentry)
 
+    #loginstuff
+    #print("mmg session = " + str(session["name"]))
+
 
     try:
         return jsonify(status_code=200,
+                        mg_too_large=mg_too_large, 
                         matched_group=final_mg,
                         attributes=my_attributes, 
                         no_match=no_match,
@@ -492,7 +878,7 @@ def drop_table():
         return jsonify(status_code=200)
     except Exception as e:
         app.logger.error(traceback.format_exc())
-        flash("Something wrong has happened, now redirecting...\nIf it continues, please contact course staff.")
+        flash("Something wrong has happened, now redirecting...")
         return app.make_response((str(e), 500))
 
 
@@ -1481,10 +1867,28 @@ def upload_table():
     #     with open(file) as csvfile:
     # ut_reader = csv.reader(csvfile, delimiter=',')
     table_name = file.filename.split('.')[0]
+    file_type = file.filename.split('.')[1]
     engine = db.get_engine(bind='raw')
 
+
+    if file_type=='csv': 
+        df = pd.read_csv(file, skipinitialspace=True)
+    elif file_type=='xlsx' or file_type=='xls': 
+        df = pd.read_excel(file)
+    #except: 
+    #    raise Exception("please upload .csv file or excel file")
+
+
+
     # kehan done
-    df = pd.read_csv(file, skipinitialspace=True)
+    #df = pd.read_csv(file, skipinitialspace=True)
+
+
+
+
+
+
+
     df.columns = df.columns.str.replace('-', '_')
     df.columns = df.columns.str.replace(' ', '')
     df.columns = map(str.lower, df.columns)
