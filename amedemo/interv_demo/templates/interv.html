@@ -982,7 +982,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Download Results as: </span>
                             </div>
-                            <input type="text" name="download-name" class="form-control" id="download-name">
+                            <input type="text" name="download-name" class="form-control" id="download-name" value="result">
                         </div>
 
                         <button type="button" class="btn btn-primary btn-download mt-1 mb-1" id="btn-download"
@@ -3220,6 +3220,11 @@
 
                 document.getElementById("download-group").hidden = false
                 document.getElementById("btn-download").hidden = false
+
+
+
+                //33333
+                document.getElementById("download-name").defaultValue = $('#sql-from').val() + "_result";
 
 
                 console.log(response);
