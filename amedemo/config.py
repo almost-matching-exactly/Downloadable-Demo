@@ -1,13 +1,11 @@
 
-#SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:hj112@ame-demo.cs.duke.edu/postgres'
-SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:leefs100@localhost/postgres'
+SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://[USERNAME]:[PASSWORD]@localhost/postgres'
 
 
 
 DB_NAME = 'postgres'
 SQLALCHEMY_BINDS = {
-    #'raw': 'postgresql+psycopg2://postgres:hj112@ame-demo.cs.duke.edu/postgres'
-    'raw': 'postgresql+psycopg2://postgres:leefs100@localhost/postgres'
+    'raw': 'postgresql+psycopg2://[USERNAME]:[PASSWORD]@localhost/postgres'
 
 
 }
