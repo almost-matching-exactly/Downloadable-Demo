@@ -1,0 +1,522 @@
+{% extends "interv.html" %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+
+<script src={{ url_for('static', filename='js/jquery-3.3.1.min.js') }}></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+
+<!-- <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+    crossorigin="anonymous"></script>
+
+<link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@5.9.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega@5.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@3.0.0-rc14"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@3.29.1"></script>
+
+
+<!-- <script src="https://code.jscharting.com/2.9.0/jscharting.js"></script> -->
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script> -->
+
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-exports.min.js"></script>
+
+
+
+
+
+
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href={{ url_for('static', filename='css/interv.css') }} rel="stylesheet">
+
+<style>
+body {font-family: Arial;}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+</head>
+
+
+
+<body>
+<br> 
+<h2>Generate Data</h2>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+    <symbol id="tooltip-icon" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286a.237.237 0 0 0 .241.247zm2.325 6.443c.61 0 1.029-.394 1.029-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94 0 .533.425.927 1.01.927z"/>
+    </symbol>
+</svg>
+
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'uniform')">Uniform Distribution</button>
+  <button class="tablinks" onclick="openTab(event, 'binomial')">Binomial Distribution</button>
+  <button class="tablinks" onclick="openTab(event, 'bin_dec')">Binomial Decay</button>
+</div>
+
+<div id="uniform" class="tabcontent">
+
+    <p>
+    Creates a dataset with covariates in a uniform distribution where the covariates' importance can be pre-specified by the user. 
+    The treatment effect will be normally distributed.
+    </p>
+
+    <br> 
+
+    <form id="uni-form" action="{{ url_for('gen_data') }}" method="post">
+
+        <label for="num_control_u"># Control Units: </label>
+        <input type="text" id="num_control_u" name="num_control_u" value="1000"><br><br>
+    
+        <label for="num_treat_u"># Treated Units: </label>
+        <input type="text" id="num_treat_u" name="num_treat_u" value="1000"><br><br>
+    
+        <label for="num_covar_u"># Covariates: </label>
+        <input type="text" id="num_covar_u" name="num_covar_u" value="4"><br><br>
+    
+        <label for="min_val_u">Minimum Value of Covariates: </label>
+        <input type="text" id="min_val_u" name="min_val_u" value="0">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The minimum value each covariate can take.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+
+        <br><br>
+    
+        <label for="max_val_u">Maximum Value of Covariates: </label>
+        <input type="text" id="max_val_u" name="max_val_u" value="3">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The maximum value each covariate can take.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+
+        <br><br>
+
+        <label for="covar_import_u">Covariate Importance (array): </label>
+        <input type="text" id="covar_import_u" name="covar_import_u" value="4,3,2,1">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The importance each covariate has in determining the outcome. Must be of length num_cov. Enter values separated only by commas. ">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+
+        <label for="bi_mean_u">Mean: </label>
+        <input type="text" id="bi_mean_u" name="bi_mean_u" value="2">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The treatment effect is normally distributed with this mean.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+        <label for="bi_stdev_u">Standard Deviation: </label>
+        <input type="text" id="bi_stdev_u" name="bi_stdev_u" value="1">
+        
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The treatment effect is normally distributed with this standard deviation.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+        <label for="dname_u">Save As: </label>
+        <input type="text" id="dname_u" name="dname_u" value="uniform">
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="Generated data will be saved to the 'gen_data' folder as a .csv file under this name.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+    
+        <button type="button" class="btn btn-uniform" style="background-color:#97cfc3">Generate</button>
+
+    </form>
+</div>
+
+<div id="binomial" class="tabcontent">
+
+    <p>
+    Creates a dataset with covariates in a binomial distribution where the covariates' importance on outcome can be pre-specified by the user. 
+    The treatment effect will be normally distributed.
+
+    </p>
+
+    <br> 
+
+    <form id="bin-form" action="{{ url_for('gen_data') }}" method="post">
+
+        <label for="num_control_b"># Control Units: </label>
+        <input type="text" id="num_control_b" name="num_control_b" value="1000"><br><br>
+    
+        <label for="num_treat_b"># Treated Units: </label>
+        <input type="text" id="num_treat_b" name="num_treat_b" value="1000"><br><br>
+    
+        <label for="num_covar_b"># Covariates: </label>
+        <input type="text" id="num_covar_b" name="num_covar_b" value="5"><br><br>
+        
+        <label for="bernoulli_param_b">Bernoulli: </label>
+        <input type="text" id="bernoulli_param_b" name="bernoulli_param_b" value="0.5">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The bernoulli parameter determining the distribution of the covariates.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+
+        <br><br>
+
+        <label for="covar_import_b">Covariate Importance (array): </label>
+        <input type="text" id="covar_import_b" name="covar_import_b" value="4,3,2,1,0.01">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The importance each covariate has in determining the outcome. Must be of length num_cov. Enter numbers separated only by commas. ">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+
+        <label for="bi_mean_b">Mean: </label>
+        <input type="text" id="bi_mean_b" name="bi_mean_b" value="2">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The treatment effect is normally distributed with this mean.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+        <label for="bi_stdev_b">Standard Deviation: </label>
+        <input type="text" id="bi_stdev_b" name="bi_stdev_b" value="1">
+        
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The treatment effect is normally distributed with this standard deviation.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+        <label for="dname_b">Save As: </label>
+        <input type="text" id="dname_b" name="dname_b" value="binomial">
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="Generated data will be saved to the 'gen_data' folder as a .csv file under this name.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+    
+        <button type="button" class="btn btn-binom" style="background-color:#97cfc3">Generate</button>
+
+    </form> 
+
+</div>
+
+<div id="bin_dec" class="tabcontent">
+
+    <p>
+    Creates a dataset with covariates in a binomial distribution where the covariates' importance on outcome exponentially decays rather than being determined 
+    by the user. The treatment effect will be normally distributed.
+
+
+    </p>
+
+    <br> 
+
+    <form id="bdec-form" action="{{ url_for('gen_data') }}" method="post">
+
+        <label for="num_control"># Control Units: </label>
+        <input type="text" id="num_control" name="num_control" value="1000"><br><br>
+    
+        <label for="num_treat"># Treated Units: </label>
+        <input type="text" id="num_treat" name="num_treat" value="1000"><br><br>
+    
+        <label for="num_covar"># Covariates: </label>
+        <input type="text" id="num_covar" name="num_covar" value="5"><br><br>
+        
+        <label for="bernoulli_param">Bernoulli: </label>
+        <input type="text" id="bernoulli_param" name="bernoulli_param" value="0.5">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The bernoulli parameter determining the distribution of the covariates.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+
+        <br><br>
+
+        <label for="bi_mean">Mean: </label>
+        <input type="text" id="bi_mean" name="bi_mean" value="2">
+
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The treatment effect is normally distributed with this mean.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+        <label for="bi_stdev">Standard Deviation: </label>
+        <input type="text" id="bi_stdev" name="bi_stdev" value="1">
+        
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="The treatment effect is normally distributed with this standard deviation.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+        <label for="dname">Save As: </label>
+        <input type="text" id="dname" name="dname" value="bin_decay">
+        <a class="custom-tooltip"
+            data-toggle="tooltip"
+            data-placement="right"
+            data-trigger="hover"
+            title="Generated data will be saved to the 'gen_data' folder as a .csv file under this name.">
+                <svg height="16" width="16" fill="#6C757D">
+                    <use href="#tooltip-icon"></use>
+                </svg>
+        </a>
+        <br><br>
+    
+    
+        <button type="button" class="btn btn-bidec" style="background-color:#97cfc3">Generate</button>
+
+    </form> 
+
+
+</div>
+
+
+
+</body>
+
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+
+
+
+    function openTab(evt, cityName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(cityName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+    
+    
+    $(document).on('click', '.btn-uniform', function (e) {
+        e.preventDefault();
+        let formData = new FormData($('#uni-form')[0]);
+
+        formData.append('gen_type', "uniform");
+
+
+        $.ajax({
+            url: '/gen_data',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                console.log(response)
+            },
+            error: function (d) {
+                console.log('error', d);
+            },
+            complete: function () {
+            },
+            contentType: false,
+            processData: false
+        });
+    
+    });
+
+    $(document).on('click', '.btn-binom', function (e) {
+        e.preventDefault();
+        let formData = new FormData($('#bin-form')[0]);
+
+        formData.append('gen_type', "binom");
+    
+    
+        $.ajax({
+            url: '/gen_data',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                console.log(response)
+            },
+            error: function (d) {
+                console.log('error', d);
+            },
+            complete: function () {
+            },
+            contentType: false,
+            processData: false
+        });
+    
+    });
+
+    $(document).on('click', '.btn-bidec', function (e) {
+        e.preventDefault();
+        let formData = new FormData($('#bdec-form')[0]);
+
+        formData.append('gen_type', "bidec");
+    
+    
+        $.ajax({
+            url: '/gen_data',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                console.log(response)
+            },
+            error: function (d) {
+                console.log('error', d);
+            },
+            complete: function () {
+            },
+            contentType: false,
+            processData: false
+        });
+    
+    });
+
+
+    
+    
+    
+</script>
+    
+
+
+</html> 
+
+{% endblock %}

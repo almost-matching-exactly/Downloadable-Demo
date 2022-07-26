@@ -35,6 +35,9 @@
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script> -->
 
     <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-exports.min.js"></script>
+
+
 
 
 
@@ -45,6 +48,13 @@
 </head>
 
 <body onLoad="$('#loginSuccessfulModal').modal('show');">
+
+
+
+    {% block content %}
+
+
+
     <nav class="navbar navbar-dark fixed-top bg-dark  p-0 shadow navbar-expand-lg">
         <div class="navbar-collapse collapse">
             <a class="navbar-brand col-sm-3 col-md-2 mr-auto" href="#">AME: Almost Exact Matching for Observational Causal Inference</a>
@@ -343,7 +353,29 @@
 
                     <br>
                     <br>
-                    <a href="https://archive.ics.uci.edu/ml/datasets/adult" target = "_blank"> &nbsp; About the adult dataset</a>
+                    <a href="https://github.com/thowell332/AME-Data-Cleaning" target = "_blank"> &nbsp; Data Cleaning Tool</a>
+
+
+
+
+
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Data Generator: </span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+
+                    <button type="button" class="btn btn-dg" style="background-color:#97cfc3" onclick=" window.open('http://0.0.0.0:5001/gen_data_open/','_blank')">Open</button>
+
+
+
+
+                    <!--<button type="button" class="btn btn-gen-data" style="background-color:#97cfc3">Generate</button>--> 
+
+
+
 
                         
 
@@ -1108,8 +1140,13 @@
 
 
                             <!-- <canvas id="myChart"></canvas> -->
+
                             <div id="covarchartcontainer" style = "width: 100%; height: 500px"></div>
-                            <div id="mychartcontainer" style="width: 100%; height: 500px"></div>
+                            <div id="mychartcontainer" style="width: 100%; height: 500px">
+                                <!--<button onclick="png()">SAVE</button>--> 
+
+                            
+                            </div>
 
 
                         </div> 
@@ -1417,6 +1454,12 @@
             </div>
         </div>
     </div>
+
+
+
+    {% endblock %}
+
+
 </body>
 
 
@@ -1438,6 +1481,8 @@
 
 
     let downloaded_main = false; 
+
+    var data_dict = {};
 
 
     $(function () {
@@ -1870,6 +1915,12 @@
         $(selector).empty();
         $(selector).append('Contains ' + resp['colcount'] + ' attributes and ' + resp['rowcount'] + 
         ' units; printing first ' + (resp['rowcount'] < 1000 ? resp['rowcount'] : 1000) + '.');
+
+        if (resp['rowcount'] >= 1000){
+            $(selector).append('\nWarning: Matching may take a long time. ')
+        }
+
+
     }
 
     function printTE(selector, resp){
@@ -2028,6 +2079,14 @@
 
 
     }
+
+    function png() {
+        chart.saveAsPng({"width": 360,
+                   "height": 500,
+                   "quality": 0.3,
+                   "filename": "My Chart PNG"});
+    };
+
 
 
     function printLog(){
@@ -3190,6 +3249,18 @@
 
         document.getElementById("loading").innerHTML = "&nbsp; Matching, please wait...";
 
+        var mytable = formData.get("sql-from")
+
+
+        /**
+        if (data_dict[mytable] > 0){
+            confirm("Warning: large datasets may take longer to match.")
+        }
+        **/
+
+        confirm("Warning: large datasets may take longer to match.")
+
+
 
 
 
@@ -3202,6 +3273,7 @@
             dataType: "json",
             data: formData,
             // data:{"active_query": d['active_query'], "ra_query":d['ra-query-text']},
+
 
 
             
@@ -3266,103 +3338,6 @@
 
 
 
-
-
-                
-                
-
-                /**
-                $('#ra-result-state').removeClass('text-info');
-                $('#ra-result-state').removeClass('d-none');
-                $('#ra-result-state').attr('class', 'text-success');
-                $('#ra-result-state').html('Finished');
-                $('#ra-test-wait').attr('class', 'd-none');
-                $('#query-result').removeClass('d-none');
-                for (let i = 0; i < response['query_result'].length; i++) {
-                    response['query_result'][i]['Interv'] = false;
-                }
-                let qr_list = [];
-                for (let i = 0; i < response['query_result'].length; i++) {
-                    let x = JSON.parse(JSON.stringify(response['query_result'][i]));
-                    x['Interv'] = true;
-                    x[aggregation] = 0;
-                    qr_list.push(response['query_result'][i]);
-                    // { #qr_list.push(x); # }
-                }
-                groupby_attrs = $('#sql-select').val().split(',').map(item => $.trim(item));
-                let options = response['query_result'].map(item => {
-                    let x = "";
-                    let tup = [];
-                    for (let i = 0; i < groupby_attrs.length; i++) {
-                        tup.push(item[$.trim(groupby_attrs[i])]);
-                    }
-                    for (let k in item) {
-                        if (!(groupby_attrs.includes(k)) && k != 'Interv') {
-                            tup.push(item[k]);
-                        }
-                    }
-                    x = tup.join(' --- ');
-                    return x;
-                });
-                response['query_result'] = qr_list;
-                $('#uq-res-1').empty();
-                $('#uq-res-2').empty();
-                populateOptions('#uq-res-1', ['None']);
-                populateOptions('#uq-res-1', options);
-                populateOptions('#uq-res-2', ['None']);
-                populateOptions('#uq-res-2', options);
-                $('#attr-col').empty();
-                populateOptions('#attr-col', groupby_attrs);
-                $('#attr-x').empty();
-                populateOptions('#attr-x', groupby_attrs);
-                $('#attr-color').empty();
-                populateOptions('#attr-color', groupby_attrs);
-                let rest_attr = groupby_attrs.slice(2, groupby_attrs.length);
-                let rest_vals = {};
-                if (rest_attr.length > 0) {
-                    for (let i = 0; i < response['query_result'].length; i++) {
-                        let v = {};
-                        for (let j = 0; j < rest_attr.length; j++) {
-                            v[rest_attr[j]] = response['query_result'][i][rest_attr[j]];
-                        }
-                        let v_str = JSON.stringify(v);
-                        if (!(v_str in rest_vals)) {
-                            rest_vals[v_str] = true;
-                        }
-                    }
-                    $('#value-rest').empty();
-                    let rest_val_options = Object.keys(rest_vals);
-                    // { #populateOptions('#value-rest', ['*']); # }
-                    populateOptions('#value-rest', rest_val_options);
-                    $('#value-rest').val(rest_val_options[0]);
-                    $('#query-res-group-1').text("for group: " + rest_val_options[0]);
-                } else {
-                    $('#value-rest').empty();
-                    $('#query-res-group-1').text("");
-                    populateOptions('#value-rest', ['N/A']);
-                }
-                if (groupby_attrs.length < 3) {
-                    $('#attr-col').val(groupby_attrs[0]).trigger('change');
-                    $('#attr-x').val(groupby_attrs[1]).trigger('change');
-                    $('#attr-color').val(groupby_attrs[1]).trigger('change');
-                } else {
-                    $('#attr-col').val(groupby_attrs[0]).trigger('change');
-                    $('#attr-x').val(groupby_attrs[1]).trigger('change');
-                    // { #$('#attr-color').val(groupby_attrs[2]).trigger('change'); # }
-                    $('#attr-color').val(groupby_attrs[1]).trigger('change');
-                }
-                //CHARTCHARTCHART
-                
-                plot_query_result(response, false,
-                    attr_col = $('#attr-col').val(),
-                    attr_x = $('#attr-x').val(),
-                    attr_color = $('#attr-color').val(),
-                    value_rest = $('#value-rest').val()
-                );
-                **/
-
-
-
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 // { #console.log(jqXHR, jqXHR.responseText, textStatus, errorThrown); # }
@@ -3411,6 +3386,32 @@
         });
     });
     **/
+
+    $(document).on('click', '.btn-gen-data', function (e) {
+        e.preventDefault();
+        let formData = new FormData();
+
+
+        $.ajax({
+            url: '/gen_data',
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            success: function (response) {
+                console.log(response)
+            },
+            error: function (d) {
+                console.log('error', d);
+                // { #window.location.replace('/interv'); # }
+            },
+            complete: function () {
+            },
+            contentType: false,
+            processData: false
+        });
+
+    });
+
    
 
 
@@ -3735,6 +3736,8 @@
         $('#sql-add-where').val('');
     });
 
+
+    
     $('.btn-table-upload').on('click', function (e) {
         var form = $('#upload-new-table')[0];
         var fd = new FormData(form);
@@ -3747,6 +3750,9 @@
             contentType: false
         })
             .done(function (data) {
+
+                console.log(data)
+
                 if (data.error) {
                     $('#errorAlert').text(data.error).show();
                     $('#successAlert').hide();
@@ -3755,13 +3761,25 @@
                     $('#successAlert').text(data.file).show();
                     $('#errorAlert').hide();
                     //kehan modify
+
+
+
+                    //data_dict[data.table_name] = data.my_size;
+
                     window.location.reload();
+
+
                 }
 
             });
 
 
     });
+
+    
+
+
+
 
 </script>
 
