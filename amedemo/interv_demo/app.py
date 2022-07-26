@@ -230,23 +230,10 @@ def interv(active_table='adult'):
     )
 
 
-#loginstuff
-@app.route("/login", methods=["POST", "GET"])
-def login():
-    print("login function reached")
-    if request.method == "POST":
-        print("request method is post")
 
-
-        #session["name"] = request.form.get("name")
-        #globals()['myname'] = request.form.get('name')
-        #session["name"] = globals()['myname']
-
-
-        return redirect("/")
-    print("request method is get")
-    return render_template(
-        "login.html", 
+@app.route('/gen_data_open/', methods=['GET', 'POST'])
+def gen_data_open(): 
+    return render_template('gen_data_open.html',
         ra_result=None,
         cur_user=request.environ.get('REMOTE_USER'),
         available_dbs=available_dbs,
@@ -256,7 +243,10 @@ def login():
         table_schemas=table_schemas,
         table_datatype=table_datatype,
         table_numeric_attr=globals()['table_numeric_attr']
-        )
+)
+
+
+
 
 
 
@@ -385,6 +375,9 @@ def run_query():
 
     #session['treat_var'] = treat_var
     #session['out_var'] = out_var
+
+
+    my_size = len(df.index)
 
 
 
@@ -616,6 +609,104 @@ def run_query():
         app.logger.error(traceback.format_exc())
         flash("Something wrong has happened, now redirecting...\nIf it continues, please contact course staff.")
         return app.make_response((str(e), 500))
+
+
+
+
+@app.route('/gen_data', methods=['POST'])
+def gen_data(): 
+
+    form_data = request.form
+
+    print(form_data)
+
+
+    gen_type = form_data.get("gen_type")
+
+    c_i = []
+    if gen_type != "bidec": 
+        if gen_type=="uniform": 
+            covar_import = form_data.get("covar_import_u")
+            num_cov = int(form_data.get("num_covar_u"))
+        else: 
+            covar_import = form_data.get("covar_import_b")
+            num_cov = int(form_data.get("num_covar_b"))
+
+        
+        cov_im = covar_import.split(',')
+        for ci in cov_im: 
+            c_i.append(float(ci))
+
+        if len(c_i) != num_cov: 
+            flash("Please list exactly 1 importance per covariate, such that this entry is the same length as the number of covariates. ")
+            return app.make_response(("Please list exactly 1 importance per covariate, such that this entry is the same length as the number of covariates. ", 500))
+
+
+
+
+    if gen_type=="uniform": 
+        df = dame_flame.utils.data.generate_uniform_given_importance(num_control=int(form_data.get("num_control_u")), num_treated=int(form_data.get("num_treat_u")),
+                                    num_cov=int(form_data.get("num_covar_u")), min_val=int(form_data.get("min_val_u")),
+                                    max_val=int(form_data.get("max_val_u")), covar_importance=c_i,
+                                    bi_mean=float(form_data.get("bi_mean_u")), bi_stdev=float(form_data.get("bi_stdev_u")))
+
+    elif gen_type=="binom": 
+        df = dame_flame.utils.data.generate_binomial_given_importance(num_control=int(form_data.get("num_control_b")), num_treated=int(form_data.get("num_treat_b")),
+                                num_cov=int(form_data.get("num_covar_b")), bernoulli_param=float(form_data.get("bernoulli_param_b")),
+                                bi_mean=float(form_data.get("bi_mean_b")), bi_stdev=float(form_data.get("bi_stdev_b")),
+                                covar_importance=c_i)
+    else: 
+
+        #nc = int(form_data.get("num_control"))
+        nt = int(form_data.get("num_treat"))
+        num_cov = int(form_data.get("num_covar"))
+
+        
+
+
+        df = dame_flame.utils.data.generate_binomial_decay_importance(num_control=int(form_data.get("num_control")), num_treated=int(form_data.get("num_treat")),
+                                  num_cov=int(form_data.get("num_covar")), bernoulli_param=float(form_data.get("bernoulli_param")),
+                                  bi_mean=float(form_data.get("bi_mean")), bi_stdev=float(form_data.get("bi_stdev")))
+
+    if not form_data.get("dname"): 
+        dname = "uniform"
+    elif gen_type=="uniform": 
+        dname = form_data.get("dname_u")
+    elif gen_type=="binom": 
+        dname = form_data.get("dname_b")
+    else: 
+        dname = form_data.get("dname")
+
+    path = "gen_data/"
+
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+    if dname + '.csv' in os.listdir(path):
+        i = 1
+        mydname = dname + "(" + str(i) + ")"
+        while mydname + '.csv' in os.listdir(path):
+            i += 1
+            mydname = dname + "(" + str(i) + ")"
+                
+        dname = mydname
+
+
+    df[0].to_csv(path + dname + '.csv', index=True)
+
+    try:
+        return jsonify(status_code=200)
+    except Exception as e:
+        app.logger.error(traceback.format_exc())
+        flash("Something wrong has happened, now redirecting...\nIf it continues, please contact course staff.")
+        return app.make_response((str(e), 500))
+
+
+
+
+
+
+
 
 
 
@@ -916,6 +1007,7 @@ def get_raw_table():
     myres = mytable.head(1000)
 
     rowcount = len(mytable.index)
+
 
     test_res = list(myres.to_records(index=True))
     my_attributes = list(myres.columns.values)
@@ -1883,6 +1975,8 @@ def upload_table():
     # kehan done
     #df = pd.read_csv(file, skipinitialspace=True)
 
+    my_size = len(df.index)
+
 
 
 
@@ -1914,7 +2008,7 @@ def upload_table():
     cur.copy_from(output, table_name, null="")  # null values become ''
     conn.commit()
     success = "Success!"
-    return jsonify({'file': success})
+    return jsonify({'file': success, 'my_size': my_size, 'table_name': table_name})
 
 
 def init_db():
